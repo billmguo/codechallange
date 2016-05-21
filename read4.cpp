@@ -22,3 +22,23 @@ private:
     int buffPtr;
     char buff[5];
 };
+
+class Soultion1{
+public:
+	int read(char *buf, int n){
+		for (int i=0;i<n;i++){
+			if (readpos == writepos){
+				writepos = read4(lbuf);
+				readpos = 0;
+				if (writepos == 0)
+				return i;
+			}
+			buf[i] = lbuf[readpos++];
+		}}
+		return n;
+	}
+private:
+	char lbuf[4];
+	int readpos = 0;
+	int writepos = 0;
+}

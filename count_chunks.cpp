@@ -1,4 +1,4 @@
-nt countchunks(string s, int start, int end, int count){
+int countchunks(string s, int start, int end, int count){
 	if (s.length()==0)
 		return 0;
 	int prestart = 0, preend = 0;
