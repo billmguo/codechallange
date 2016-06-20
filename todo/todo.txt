@@ -1,0 +1,258 @@
+ign Hit Counter(elmirap)
+
+Write a hit counter for hits received in the past 5 minutes.
+
+Example:
+HitCounter counter= new HitCounter();
+
+// hit at timestamp in 1
+counter.hit(1");
+
+// hit at timestamp 2
+counter.hit(2);
+
+// hit at timestamp 3
+counter.hit(3);
+
+// get hits at timestamp 4
+counter.getHits(4);
+
+Returns 3
+
+// hit at timestamp 300
+counter.hit(300);
+
+// get hits at timestamp 300
+counter.getHits(300);
+
+Returns 4
+
+// get hits at timestamp 301
+counter.getHits(301); 
+
+Returns 3
+
+http://lcoj.tk/problems/max-sum-of-sub-matrix-no-larger-than-k-fujiaozhu/
+
+
+Given a 2D matrix A and an integer K, find the max sum of A's sub-matrix. The max sum should be no larger than K.
+
+Example:
+
+Given A = [
+  [-1, 0, 1],
+  [0, -2, 3]
+]
+K = 2
+The answer is 2. Because the sum of sub-matrix [[0, 1], [-2, 3]] is 2 and 2 is the max number no larger than K(K = 2).
+
+Note:
+1. We make sure that the minimum sum of the sub-matrix is no larger than K.
+
+2. What if the number of rows is much larger than the number of columns?
+
+Subscribe to see which companies asked this question
+
+class Solution {
+public:
+    int maxSumofSubmatrix(vector<vector<int>>& matrix, int K) {
+        
+    }
+};
+
+344. Design Twitter
+
+Design a simplified version of Twitter where users can post tweets, follow/unfollow another user and is able to see the 10 most recent tweets in the user's news feed. Your design should support the following methods:
+
+postTweet(userId, tweetId): Compose a new tweet.
+getNewsFeed(userId): Retrieve the 10 most recent tweet ids in the user's news feed. Each item in the news feed must be posted by users who the user followed or by the user herself. Tweets must be ordered from most recent to least recent.
+follow(followerId, followeeId): Follower follows a followee.
+unfollow(followerId, followeeId): Follower unfollows a followee.
+Example:
+
+Twitter twitter = new Twitter();
+
+// User 1 posts a new tweet (id = 5).
+twitter.postTweet(1, 5);
+
+// User 1's news feed should return a list with 1 tweet id -> [5].
+twitter.getNewsFeed(1);
+
+// User 1 follows user 2.
+twitter.follow(1, 2);
+
+// User 2 posts a new tweet (id = 6).
+twitter.postTweet(2, 6);
+
+// User 1's news feed should return a list with 2 tweet ids -> [6, 5].
+// Tweet id 6 should precede tweet id 5 because it is posted after tweet id 5.
+twitter.getNewsFeed(1);
+
+// User 1 unfollows user 2.
+twitter.unfollow(1, 2);
+
+// User 1's news feed should return a list with 1 tweet id -> [5],
+// since user 1 is no longer following user 2.
+twitter.getNewsFeed(1);
+
+
+
+class Twitter {
+public:
+    /** Initialize your data structure here. */
+    Twitter() {
+        
+    }
+    
+    /** Compose a new tweet. */
+    void postTweet(int userId, int tweetId) {
+        
+    }
+    
+    /** Retrieve the 10 most recent tweet ids in the user's news feed. Each item in the news feed must be posted by users who the user followed or by the user herself. Tweets must be ordered from most recent to least recent. */
+    vector<int> getNewsFeed(int userId) {
+        
+    }
+    
+    /** Follower follows a followee. If the operation is invalid, it should be a no-op. */
+    void follow(int followerId, int followeeId) {
+        
+    }
+    
+    /** Follower unfollows a followee. If the operation is invalid, it should be a no-op. */
+    void unfollow(int followerId, int followeeId) {
+        
+    }
+};
+
+/**
+ * Your Twitter object will be instantiated and called as such:
+ * Twitter obj = new Twitter();
+ * obj.postTweet(userId,tweetId);
+ * vector<int> param_2 = obj.getNewsFeed(userId);
+ * obj.follow(followerId,followeeId);
+ * obj.unfollow(followerId,followeeId);
+ */
+
+
+ bob enemy
+
+ Given 2D grid, each cell is either a wall 'Y', an enemy 'X' or empty '0' (the number zero), return the maximum enemies you can kill using one bomb.
+The bomb kills all the enemies in the same row and column from the planted point until it hits the wall since the wall is too strong to be destroyed.
+Note that you can only put the bomb at empty cell.
+
+Example
+
+For the given grid
+
+0 X 0 0
+X 0 Y X
+0 X 0 0
+
+return 3. (Placing a bomb at (1,1) kills 3 enemies)
+
+
+class Solution {
+public:
+    int maxKilledEnimies(vector<vector<char>>& grid) {
+        
+    }
+};
+
+
+Sort transformed array(elmirap) 
+
+Given a sorted array of integers nums and integer values a, b and c. Apply a function of the form f(x) = a*x^2+b*x+c to each element x in the array.
+
+The returned array should be sorted.
+
+Expected time complexity : O(n)
+
+Example
+
+nums = [-4 , -2 , 2 , 4] , a = 1 , b = 3 , c = 5,
+
+Result: [3, 9, 15, 33]
+
+nums = [-4 , -2 , 2 , 4] , a = -1 , b = 3 , c = 5
+
+Result: [-23, -5, 1, 7]
+
+Subscribe to see which companies asked this question
+
+
+class Solution {
+public:
+    vector<int> sortTransformedArray(vector<int>& nums, int a, int b, int c) {
+        
+    }
+};
+
+leetcode 349
+
+http://lcoj.tk/problems/find-all-numbers-with-unique-digits-memoryless/
+
+Given a non-negative integer n, count all numbers with unique digits, x, where 0 ≤ x < 10n.
+
+Example:
+Given n = 2, return 91. (the answer should be all numbers between [0,99] excluding [11,22,33,44,55,66,77,88,99])
+
+Subscribe to see which companies asked this question
+
+
+class Solution {
+public:
+    int countNumbersWithUniqueDigits(int n) {
+        
+    }
+};
+
+
+351. Print Message [memoryless] My Submissions QuestionEditorial Solution
+Total Accepted: 1 Total Submissions: 3 Difficulty: Easy
+Design logger system that receive stream of messages along with its timestamps, each message should be printed if and only if it is not printed in the last 10 seconds.
+Given a message and a timestamp, return true if the message should be printed in the given timestamp, otherwise returns false.
+It is possible that several messages arrive roughly at the same time.
+
+Example:
+
+Logger logger = new Logger();
+
+// logging string "foo" at timestamp 1
+logger.shouldPrintMessage(1, "foo"); returns true; 
+
+// logging string "bar" at timestamp 2
+logger.shouldPrintMessage(2,"bar"); returns true;
+
+// logging string "foo" at timestamp 3
+logger.shouldPrintMessage(3,"foo"); returns false;
+
+// logging string "bar" at timestamp 8
+logger.shouldPrintMessage(8,"bar"); returns false;
+
+// logging string "foo" at timestamp 10
+logger.shouldPrintMessage(10,"foo"); returns false;
+
+// logging string "foo" at timestamp 11
+logger.shouldPrintMessage(11,"foo"); returns true;
+Subscribe to see which companies asked this question
+
+
+class Logger {
+public:
+    /** Initialize your data structure here. */
+    Logger() {
+        
+    }
+    
+    /** Returns true if the message should be printed in the given timestamp, otherwise returns false.  */
+    bool shouldPrintMessage(int timestamp, string message) {
+        
+    }
+};
+
+/**
+ * Your Logger object will be instantiated and called as such:
+ * Logger obj = new Logger();
+ * bool param_1 = obj.shouldPrintMessage(timestamp,message);
+ */
