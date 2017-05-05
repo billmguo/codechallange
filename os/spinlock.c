@@ -20,7 +20,9 @@ void Lock(SpinLock *L)
 {   while (TestAndSet(L)) 
         ;
 }
-
+void initlock(Spinlock *s){
+	*s = 0;
+}
 void Lock (SpinLock *L) {
            int m = 1;
            do {
