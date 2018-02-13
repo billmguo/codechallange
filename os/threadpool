@@ -1,0 +1,28 @@
+class Threadpool{
+    mutex m;
+    condition_variable cv;
+    vector<thread> pool;
+    queue<function<void>> q;
+public:
+  void addjob(fucntion<void()> newjob) {
+    unique_lock<mutex> lock(m);
+    q.push(newjob);
+    cv.notifiy_one();
+  }
+
+    void function() {
+      while(true) {
+        unique_lock<mutex> l(m);
+        cv.wait(l, []{return !q.empty();});
+        job = q.front();
+        q.pop();
+      }
+      job();
+    }
+
+    void Threadpool(int num) {
+      for(int i= 0; i< num; i++)	{ 
+        pool.push_back(thread(function));
+      }
+    }
+}
