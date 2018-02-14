@@ -1,0 +1,52 @@
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+using namespace std;
+
+int num = 1;
+mutex m;
+condition_variable cv1, cv2, cv3;
+
+void printnum(int t) {
+	
+	for (; num < 100;) {
+		
+	     if (t == 1) {
+		     if (num % 3 != 1) {
+		    	  unique_lock<mutex> l(m);
+		    	  cv1.wait(l);
+		     }
+		     cout << 1 <<" ";
+		     ++num;
+		     cv2.notify_one();
+	     }
+	     if (t == 2) {
+		     if (num % 3 != 2) {
+			      unique_lock<mutex> l(m);
+			      cv2.wait(l);
+		     }
+		     cout << 2 <<" ";
+		     ++num;
+		     cv3.notify_one();
+	     }
+	      if (t == 3) {
+		     if (num % 3 != 0) {
+			      unique_lock<mutex> l(m);
+			      cv3.wait(l);
+		     }
+		     cout << 3 <<" ";
+		     ++num;
+		     cv1.notify_one();
+	     }
+	}
+}
+int main() {
+	// your code goes here
+	
+	thread t1(printnum, 1), t2(printnum, 2),t3(printnum,3);
+	t1.join();
+	t2.join();
+	t3.join();
+	return 0;
+}
