@@ -1,0 +1,25 @@
+string removeemptystring(string s) {
+	if (s.size() == 0)
+		return "";
+	int j = 0, k = 0;
+	for(int i = 0; i < s.size();i++) {
+	    if (s[i] != ' ') {
+		s[j] = s[i];
+		j++;
+	    }
+	    k = j;
+	    if ( i + 1 < s.size() && s[i]== ' ' && s[i+1]==' ' ) {
+		i++;
+		j = k + 1 ;
+		if (j - 1 >= 0)
+		       s[j - 1] = ' ';
+	    }	
+	}
+	return s.substr(0, j);
+}
+int main() {
+	// your code goes here
+	string t = removeemptystring("abc  def  b  h k  ghk");
+	cout<<t<<endl;
+	return 0;
+}
