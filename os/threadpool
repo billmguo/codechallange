@@ -12,13 +12,15 @@ public:
 
     void function() {
       while(true) {
-        unique_lock<mutex> l(m);
-        cv.wait(l, []{return !q.empty();});
-        job = q.front();
-        q.pop();
-      }
+        {
+            unique_lock<mutex> l(m);
+            cv.wait(l, []{return !q.empty();});
+            job = q.front();
+            q.pop();
+        }
       job();
     }
+  }
 
     void Threadpool(int num) {
       for(int i= 0; i< num; i++)	{ 
