@@ -1,0 +1,14 @@
+find the len == N and only one char repeat once.
+
+vector<string> findnth(string &s, int N) {
+    unordered_set<string> uq; // distinct substrings
+    unordered_map<char, int> m; // substring char frequency
+    for (int i = 0; i < s.size(); ++i) {
+        ++m[s[i]];
+        if (i >= N && --m[s[i - N]] == 0)
+        	m.erase(s[i - N]);
+        if (m.size() == N - 1)
+        	uq.insert(s.substr(i - N + 1, N));
+    }
+    return vector<string>(uq.begin(), uq.end());
+}   
