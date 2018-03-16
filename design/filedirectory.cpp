@@ -31,11 +31,11 @@ public:
     int numberOfFiles()  {
         int count = 0;
         for (auto e : m_child){
-            if (Folder *v == dynamic_cast<Folder*> e){
+            if (Folder *v = dynamic_cast<Folder*> e){
                 count++; // Directory counts as a file
                 count += d->numberOfFiles ();
             }
-            else if  (File *f == dynamic_cast<File*> e)       
+            else     
                 count++;            
         }
         return count;
