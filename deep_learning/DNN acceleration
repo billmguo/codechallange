@@ -1,0 +1,89 @@
+Nvdia  Tsla V100 120T flops 900 GB HBM2 
+Nvdia vavier 20Tflops 130GB 
+QC SDM845 Adreno 600G Flops 30GB/s 
+
+Computation 
+
+	
+	1.bottleneck  (resnet, inception v4)
+	3*3*256
+	1*1 *64 --> 3*3*64 --> 1*1->256
+
+memory intensive keep same or little bit increase. but computation reduce to 1/10.
+
+
+
+
+
+2.depthsize (mobilenet shufflenet) , refer inception v3 paper
+computation 1/9　(1/N + 1/Dk**2)
+
+
+
+
+3. Wingroad and FFT 
+Winograd 3×3 conv can realized 9 times but down the precision. 
+
+4. Sparsity (filter wise, channel wise, depth wise) , in the c++ implementation, rotate a[i[[j]  and use col[j] as condition to avoid the cache missing if row[i] is sparsity;
+
+
+5. low pricision network (8bit fp16, xor ,binary network), quantitation, prefer linear quantitation  
+	6. Merge the operation layers
+
+
+ img2col ->GEMM->add Bias -> Relu
+   imag2col -> combine (GEMM add bias Relu)
+   BN + Conv together
+   BN + Scale together 
+    (convolution, bias, relu)
+    reduce memory move from low layer to hgiehr layer
+    conv layer: conv_weight, conv_bias
+    
+    bn layer: bn_mean, bn_variance, num_bn_samples
+    
+    scale layer: scale_weight, scale_bias
+    Let us define a vector 'alpha' of scale factors for conv filters:
+    alpha = scale_weight / sqrt(bn_variance / num_bn_samples + eps)
+    If we set conv_bias and conv_weight as:
+    conv_bias = conv_bias * alpha + (scale_bias - (bn_mean / num_bn_samples) * alpha)
+    for i in range(len(alpha)):
+        conv_weight[i] = conv_weight[i] * alpha[i]
+   
+    Then we can get the same result compared to that with the 
+    original network by setting bn and scale parameters as:
+    bn_mean[...] = 0
+    bn_variance[...] = 1
+    num_bn_samples = 1
+    scale_weight[...] = 1
+    scale_bias[...] = 0
+8.Operator's granularity, graph optimization can done with Tensorflow, Mxnet but not caffee which is not graph based design.
+
+Feature map decoupled, like 16*16 feature map can split to 4*8*8 feature map as output.\
+reduce compiler optimization
+
+
+
+10. gemv sparsity matrix multiple 
+
+Y = alpha * Ax  + B* y  A (M*N), x (N), y(N)
+
+
+For (int j = 0; j < N; j++) {
+	If (x[j] != 0.0) {
+		Tmp = alpha * x[j]; // in case we store as row , row interval may lead to cache missing is X[j] is sparsity . But if we change to store with col, that can improve the cache hit.
+		For (int I = 0; I <M; i++) {
+			y[i] += tmp * A[i][j];
+		}
+	}
+}
+
+Improve 
+
+For (int j = 0; j < N; j++) {
+	If (x[j] != 0.0) { // will read into cache line 
+		Tmp = alpha * x[j]; 
+		For (int I = 0; I <M; i++) {
+			y[i] += tmp * A[j][i];
+		}
+	}
+}
