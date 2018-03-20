@@ -1,0 +1,380 @@
+"leetcode".anagramIndexOf("doc") = 4
+"leetcode".anagramIndexOf("index") = -1 
+
+int findanagramindex(string &s, string &key) {
+	int n = key.size();
+	int  m = s.size();
+	if (m == 0) return -1;
+	string tmp = key;
+	sort(tmp.begin(), tmp.end());
+	for (int i = 0; i <= m - n; i++) {
+		string t = substr(i,n);
+		sorted(t.begin(), t.end());
+		if (t == tmp)
+			return i;
+	}
+	return -1;
+}
+
+
+
+2. 
+"1.13" + "0.9" => "2.03"
+
+
+
+	string doubsum(string &a, string &b) {
+		string res;
+		if (a.empty() && b.empty())
+			return res;
+		int m = a.size();
+		int n = b.size();
+		int i = 0, j = 0;
+		while (i < m && a[i] != '.')
+			i++;
+		while (i < n && b[j] != '.')
+			j++;
+		string a1 = a.substr(0, i);
+		string a2 = a.substr(i+1);
+		string b1 = b.substr(0, j);
+		string b2 = b.substr(j+1);
+		string ab1 = addStrings(a1, b1);
+		string ab2 = addStrings(a2, b2);
+		return ab1 +"." + ab2;
+	}
+    string addStrings(string &num1, string &num2) {
+        string res = "";
+        int m = num1.size(), n = num2.size(), i = m - 1, j = n - 1, carry = 0;
+        while (i >= 0 || j >= 0) {
+        	int a = i >= 0? num1[i--] - '0':0;
+        	int b = j >= 0? num2[j--] - '0':0;
+        	int sum = a + b + carry;
+        	res.insert(res.begin(), sum % 10 + '0');
+        	carry = sum/10;
+        }
+        if (carry)
+        	return "1" + res;
+        else
+        	return res;
+    }
+
+leetcode 256
+
+class Solution {
+public:
+    int subarraySum(vector<int>& nums, int k) {
+        int res = 0, sum = 0, n = nums.size();
+        unordered_map<int, int> m{{0, 1}};
+        for (int i = 0; i < n; ++i) {
+            sum += nums[i];
+            res += m[sum - k];
+            ++m[sum]; 
+        }
+        return res;
+    }
+};
+
+class Solution {
+public:
+    vector<string> binaryTreePaths(TreeNode* root) {
+        vector<string> res;
+        if (root) dfs(root, "", res);
+        return res;
+    }
+    void dfs(TreeNode *root, string out, vector<string> &res) {
+        out += to_string(root->val);
+        if (!root->left && !root->right)
+        	res.push_back(out);
+        else {
+            if (root->left) dfs(root->left, out + "->", res);
+            if (root->right) dfs(root->right, out + "->", res);
+        }
+    }
+    void dfs(Graph *root, string out, vector<string> &res, vector<bool> &graphv) {
+    	if (graphv[root])
+    		return;
+    	out += to_string(root->val);
+    	for (auto a:graphv[root]) {
+    		dfs(a, out +"->" res, graphv);
+    	}
+    }
+};
+a) phone number combination; 
+
+// Recursion
+class Solution {
+public:
+    vector<string> letterCombinations(string digits) {
+        vector<string> res;
+        if (digits.empty()) return res;
+        string dict[] = {"abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
+        letterCombinationsDFS(digits, dict, 0, "", res);
+        return res;
+    }
+    void letterCombinationsDFS(string digits, string dict[], int level, string out, vector<string> &res) {
+        if (level == digits.size()) res.push_back(out);
+        else {
+            string str = dict[digits[level] - '2'];
+            for (int i = 0; i < str.size(); ++i) {
+                out.push_back(str[i]);
+                letterCombinationsDFS(digits, dict, level + 1, out, res);
+                out.pop_back();
+            }
+        }
+    }
+};
+
+We are given a list schedule of employees, which represents the working time for each employee.
+
+Each employee has a list of non-overlapping Intervals, and these intervals are in sorted order.
+
+Return the list of finite intervals representing common, positive-length free time for all employees, also in sorted order.
+
+/*
+Example 1:
+
+Input: schedule = [[[1,2],[5,6]],[[1,3]],[[4,10]]]
+Output: [[3,4]]
+Explanation:
+There are a total of three employees, and all common
+free time intervals would be [-inf, 1], [3, 4], [10, inf].
+We discard any intervals that contain inf as they aren't finite.
+ 
+*/
+
+class Solution {
+public:
+    vector<Interval> employeeFreeTime(vector<vector<Interval>>& schedule) {
+        vector<Interval> res;
+        map<int, int> m;
+        int cnt = 0;
+
+        for (auto employee : schedule) {
+            for (Interval i : employee) {
+                ++m[i.start];
+                --m[i.end];
+            }
+        }
+
+        for (auto a:m) {
+        	cnt += a.second;
+        	if (!cnt)
+        		res.push_back(Interval(a.first, 0));
+        	if (cnt && !res.empty() && !res.back.end) res.back().end = a.first;
+        }
+
+        if (!res.empty()) res.pop_back();
+        return res;
+    }
+};
+
+
+1. 合并区间， 给一个数组，每个元素是一个pair，表示数轴上一个区间，已知区间已按左端点升序排列，要求合并所有有交集的区间。返回的区间集要无交集。. 
+
+vector<Interval> mergetwointeval(vector<Interval> &a, vector<Interval> &b) {
+	vector<Interval> res;
+	map<int, int> m;
+	for (auto e:a) {
+		m[e.start]++;
+		m[e.end]--;
+	}
+	for (auto e:b) {
+		m[e.start]++;
+		m[e.end]--;
+	}
+	Interval tmp;
+	int cnt = 0;
+	bool find = false;
+	for (auto &e:m) {
+		cnt += e.second;
+		if (cnt == 1 && pivot.first != 0) {
+			pivot.start = e.first;
+		}else if (cnt = 0 && pivot.end == 0) {
+			pivot.end = e.second;
+			res.push_back(pivot);
+			pivot.reset();
+		}
+	}
+	return;
+}
+
+vector<Interval> intersection(vector<Interval>& lhs, vector<Interval>& rhs) {
+    vector<Interval> res;
+   
+    map<int, int> m;
+    for (auto& a : lhs) {
+        m[a.start]++;
+        m[a.end]--;
+    }
+
+    for (auto& a : rhs) {
+        m[a.start]++;
+        m[a.end]--;
+    }
+
+    Interval pivot;
+    int cur = 0;
+    for (auto& a : m) {
+        cur +=  a.second;
+        if (cur == 2) {
+            pivot.start = a.first;
+        } else if (pivot.start != pivot.end) {
+            pivot.end = a.first;
+            res.push_back(pivot);
+            pivot.reset();
+        }
+    }
+    return res;
+};
+
+b) find union intervals of two list of internals.
+4） ML design， news feed rank, 问的比较系统，但是比较开放。ains the anagram of another string. 
+
+find lowest lowestCommonAncestor
+class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+       if (!root || p == root || q == root) return root;
+       TreeNode *left = lowestCommonAncestor(root->left, p, q);
+       TreeNode *right = lowestCommonAncestor(root->right, p , q);
+       if (left && right) return root;
+       return left ? left : right;
+    }
+};
+
+
+insert and remove in O(1)
+
+
+class RandomizedSet {
+public:
+    /** Initialize your data structure here. */
+    RandomizedSet() {}
+    
+    /** Inserts a value to the set. Returns true if the set did not already contain the specified element. */
+    bool insert(int val) {
+        if (m.count(val)) return false;
+        nums.push_back(val);
+        m[val] = nums.size() - 1;
+        return true;
+    }
+    
+    /** Removes a value from the set. Returns true if the set contained the specified element. */
+    bool remove(int val) {
+        if (!m.count(val)) return false;
+        int last = nums.back();
+        m[last] = m[val];
+        nums[m[val]] = last;
+        nums.pop_back();
+        m.erase(val);
+        return true;
+    }
+    
+    /** Get a random element from the set. */
+    int getRandom() {
+        return nums[rand() % nums.size()];
+    }
+private:
+    vector<int> nums;
+    unordered_map<int, int> m;
+};
+
+
+
+给了一个面经没有的 medium 题，一个多叉树，每个节点有三种状态，0，1，2. 要求如果子节点全部为2，父节点也为2. 子节点全部为0，
+父节点为0，其余情况都是为1.\给你一个已经合法的树，实现一个 改value 的函数 （node, targetValue）,难点在怎么连带 改其他需要 改值的node
+
+
+public class Solution{
+        Node root;
+
+        public void updateNode(Node* root, int val){
+            vector<Node*> st;
+            dfs(n, root, stack);
+        }
+
+        dfs(Node* target, Node* parent, Stack<Node*> stack){
+            if (parent == null) return;
+            if(parent == target){
+                if(target.val == 1){
+                    checkChangeBack(target, stack);
+                }else{
+                    //update children
+                    updateChildren(target);
+                    //update parent
+                    updateParent(target, stack);
+                }
+                return;
+            }
+            node->left = parent ->left;
+            node->right = parent->right;
+            st.push(parent);
+            dfs(target, left, stack);
+            dfs(target, right, stack);
+        }
+
+         void checkChangeBack(Node *target, Stack<Node> stack){
+            //change back by children
+            Node* left = target->left;
+            Node* right = target->right;
+            if(left != null && right != null){
+                if((left.val == 0  && right.val == 0) || (left.val == 2 && right.val == 2) ){
+                   target.val = left.val;
+                }
+            }
+            //change back by parent
+            if(!stack.empty()){
+                Node parent = stack.peek();
+                if(parent.val == 0 || parent.val == 2){
+                    target.val = parent.val;
+                }
+            }
+        }
+
+        void updateChildren(Node* root){
+            if(root == null) return;
+            if(root->val == 0 || root -> val == 2){
+                Node* left = root->left;
+                Node* right = root->right;
+                if (left != null) 
+                	left.val = root.val;
+                if (right != null) 
+                	right.val = root.val;
+                updateChildren(left);
+                updateChildren(right);
+            }
+         }
+         
+       updateParent(Node target, Stack<Node> stack){
+            if(target.val == 1) return;
+            if(st.empty()) return;
+            Node* parent = stack.top();
+            st.pop();
+            Node* sibling = target == parent.left ? parent.right : parent.left;
+            if(sibling == null) return;
+            if(target.val == sibling.val) parent.val = target.val;
+            updateParent(parent, stack);
+        }
+    };
+
+
+Get random point given a list of rectangle.
+
+pair<int, int> getrandom(vector<rect> &rects) {
+	int sum = 0;
+	for (auto a:rects)
+		sum += a.w * a.h;
+	int randn = rand(sum);
+	pp point;
+	int csum = 0;
+	for (int i = 0; i < rects.size(); i++) {
+		if (csum < randn)
+			csum += rects[i];
+		else {
+			int area = a.w * a.h;
+			point.first = rects[i].x + (csum - randn) % area;
+			point.second = rects[i].y + (csum - randon) % area;
+		}
+	}
+	return point;
+}
