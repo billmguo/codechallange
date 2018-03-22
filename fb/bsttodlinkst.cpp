@@ -48,3 +48,62 @@ void BindarytoDoubleLinkedList(node *root, node *&head) {
 	prev = root;
 	BindarytoDoubleLinkedList(root->right, head);
 }
+
+
+DlistNode *bsttolst(TreeNode* node) {
+    if (root == NULL)
+        return NULL;
+        //Init stack
+    stack<TreeNode*> st;
+    TreeNode *p = root;
+        //Create DoublyListNode header
+    DListNode *head = NULL;
+    DListNode *cur = head;
+    while(node && !st.empty()) {
+        while (node != NULL) {
+            st.push(node);
+            node = node->left;
+        }
+        node = st.top();
+        st.pop()
+        DLinkList *newnode = new LinkList(node->val);
+        if (head == NULL){
+            head = newnode;
+        }else{
+            cur->next = newnode;
+            newnode->prev = cur;
+            cur = cur->next;
+        }
+    }
+    cur->next = head;
+    head->next = cur;
+    return head;
+}
+
+
+listNode *bsttolst(TreeNode* node) {
+    if (root == NULL)
+        return NULL;
+        //Init stack
+    stack<TreeNode*> st;
+    TreeNode *p = root;
+        //Create DoublyListNode header
+    ListNode *head = NULL;
+    ListNode *cur = head;
+    while(node && !st.empty()) {
+        while (node != NULL) {
+            st.push(node);
+            node = node->left;
+        }
+        node = st.top();
+        st.pop()
+        LinkList *newnode = new LinkList(node->val);
+        if (head == NULL)
+            head = newnode;
+        else{
+            cur->next = newnode;
+            cur = cur->next;
+        }
+    }
+    return head;
+}
