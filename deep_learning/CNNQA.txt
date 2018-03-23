@@ -1,0 +1,171 @@
+• Q1 The most successful application of CNN is in CV. So why are many problems of NLP and Speech solved by CNN? Why is CNN used in AlphaGo? Where are the similarities between these unrelated questions? What means has CNN captured this commonality?
+The relevance of the above unrelated issues is that there is a relationship between the local and the overall, and the low-level features are combined to form high-level features, and the spatial correlation between different features is obtained. As shown below: Low-level features such as straight lines/curves are combined into different shapes to finally get the car's representation.
+•	 
+CNN has four major features: local connections/weight sharing/pooling operations/multi-hierarchy.
+Partial connectivity allows the network to extract local features of the data; weight sharing greatly reduces the network's training difficulty, a Filter extracts only one feature, and convolution in the entire picture (or speech/text); pooling operations and multi-level structure Together, the dimensionality reduction of the data is achieved, and the low-level local features are combined into higher-level features to represent the entire picture. 
+•	Q2 Why do many people face Paper will eventually join a Local Connected Conv?
+Here is the reason for using Local-Conv is that the face in different areas there are different characteristics (eyes / nose / mouth distribution is relatively fixed), when there is no global local features When distributed, Local-Conv is more suitable for feature extraction
+ 
+•	Q3 Weights Initialization. Different ways, consequences. Why does this result?
+Several main weight initialization methods: lecun_uniform / glorot_normal / he_normal / batch_normal
+Lecun_uniform: Efficient BackProp
+ 
+Glorot_normal:Understanding the difficulty of training deep feedforward neural networks
+He_normal:Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification
+Batch_normal:Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift
+ 
+ 
+•	Q4 Why can I always avoid poor Local Optima when the network is deep enough (Neurons is enough)?
+ 
+•	What are the ways in which Loss. is defined (based on what?), what optimization methods are there, how to optimize them, their respective benefits, and explanations.Cross-Entropy / MSE / K-L divergence
+ 
+ 
+•	Dropout. How to do it, what's the use, explain.How does the dropout method work in deep learning?
+ Dropout is a form of regularization,it helps to view dropout as a form of ensemble learning. In ensemble learning we take a number of ‘weaker’ classifiers, train them separately and then at test time we use them by averaging the responses of all ensemble members,One ensemble variant is bagging, in which each member of the ensemble is trained with a different subsample of the input data, and thus has learned only a subset of the whole possible input feature space. Dropout, then, can be seen as an extreme version of bagging. At each training step in a mini-batch, the dropout procedure creates a different network (by randomly removing some units), which is trained using backpropagation as usual. 
+ 
+•	Activation Function. What to use, what are the benefits, and why are there such benefits.
+
+              Linearity to non-linearity 
+              Several main activation functions: Sigmond / ReLU / PReLU
+Deep Sparse Rectifier Neural Networks
+Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification
+ 
+ 
+•	What kind of data set is not suitable for deep learning?
+When the data set is too small and the data sample is insufficient, deep learning has no obvious advantage over other machine learning algorithms.
+There are no local correlation features in the data set. The current areas of deep learning performance are mainly areas such as image/voice/natural language processing. One common feature of these areas is local correlation. The pixels in the image compose the object. The phonemes in the voice signal are combined into words. The words in the text data are combined into sentences. Once the combination of these feature elements is disrupted, the meaning of the expression is also changed. For datasets that do not have such a local correlation, they are not suitable for processing using deep learning algorithms. For example: to predict the health of a person, the relevant parameters will be various elements such as age, occupation, income, family status, etc. Disturbing these elements will not affect the relevant results.
+ 
+ 
+•	What is a co-linearity, is there a connection with overfitting?
+Collinearity: In multivariate linear regression, regression estimates are inaccurate due to the high correlation between variables.Collinearity causes redundancy and leads to overfitting.
+Workaround: Exclude variable dependencies / join weights regular. One highlight is in L2 regularization the all the co-linear parameters will decrease.
+ 
+•	How is the generalized linear model applied to deep learning?
+ 
+Deep learning can be viewed as a recursive generalized linear model from a statistical point of view.
+The generalized linear model is relative to the classical linear model (y=wx+b). The core lies in the introduction of the connection function g(.). The form becomes: y=g−1(wx+b).
+The recursive generalized linear model for deep learning and the activation function for neurons are the link functions of the generalized linear model. The logistic function of logistic regression (a kind of generalized linear model) is the Sigmoid function in the neuron activation function. 
+ 
+ 
+ 
+•	What causes the gradient to disappear?How does the ReLu solve the gradient  vanishing problem?
+ 
+In the neural network training, by changing the weight of the neuron, the output value of the network approaches the label as much as possible to reduce the error value. The BP algorithm is commonly used in training. The core idea is to calculate the loss function value between the output and the label, and then calculate It iterates over the weights relative to each neuron's gradient.
+ 
+The disappearance of the gradient will cause the weight to update slowly and increase the difficulty of training the model. One reason for the disappearance of the gradient is that many activation functions squeeze the output value into a very small interval, with a gradient of 0 in the larger domain of the two ends of the activation function. Causes learning to stop
+ 
+ 
+ 
+ 
+•	How to do the data processing in image training and inference?
+ 
+Way 1) 
+ 
+Mean subtraction is the most common form of preprocessing. It involves subtracting the mean across every individual feature in the data
+X -= np.mean(X, axis = 0)
+ 
+Normalization refers to normalizing the data dimensions so that they are of approximately the same scale. There are two common ways of achieving this normalization. One is to divide each dimension by its standard deviation, once it has been zero-centered: (X /= np.std(X, axis = 0))
+ 
+       Way 2)
+
+PCA and whitening , use SVD to decompose the covariance of input data , PCA is different from SVD, but SVD can use for the PCA decomposition. 
+ 
+# Assume input data matrix X of size [N x D]
+X -= np.mean(X, axis = 0) # zero-center the data (important)
+cov = np.dot(X.T, X) / X.shape[0] # get the data covariance matrix
+ 
+U,S,V = np.linalg.svd(cov)
+ 
+Xrot = np.dot(X, U) # decorrelate the data
+ 
+Xrot_reduced = np.dot(X, U[:,:100]) # Xrot_reduced becomes [N x 100]
+ 
+ 
+The whitening operation takes the data in the eigenbasis and divides every dimension by the eigenvalue to normalize the scale
+ 
+# divide by the eigenvalues (which are square roots of the singular values)
+Xwhite = Xrot / np.sqrt(S + 1e-5)
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+•	 implement the Gradient descents 
+ 
+subtracting the mean across every individual feature in the data
+ 
+def normalize(X):
+    '''
+    function to normalize feature matrix, X
+    '''
+    mins = np.min(X, axis = 0)
+    maxs = np.max(X, axis = 0)
+    rng = maxs - mins
+    norm_X = 1-((maxs -X)/rng)
+    returnnorm_X
+ 
+ 
+ 
+def logistic_func(beta, X):
+    '''
+    logistic(sigmoid) function
+    '''
+    return1.0/(1+np.exp(-np.dot(X, beta.T)))
+ 
+ 
+ 
+the matrix need transpose 
+ 
+def log_gradient(beta, X, y):
+    '''
+    logistic gradient function
+    '''
+    first_calc = logistic_func(beta, X) - y.reshape(X.shape[0], -1)
+    final_calc = np.dot(first_calc.T, X)
+    returnfinal_calc
+ 
+ 
+ 
+def cost_func(beta, X, y):
+    '''
+    cost function, J
+    '''
+    log_func_v = logistic_func(beta, X)
+    y = np.squeeze(y)
+    step1 = y * np.log(log_func_v)
+    step2 = (1-y) *np.log(1-log_func_v)
+    final = -step1 -step2
+    returnnp.mean(final)
+ 
+ 
+ 
+ 
+ 
+def grad_desc(X, y, beta, lr=.01, converge_change=.001):
+    '''
+    gradient descent function
+    '''
+    cost = cost_func(beta, X, y)
+    change_cost = 1
+    num_iter = 1
+     
+    while(change_cost > converge_change):
+        old_cost = cost
+        beta = beta - (lr * log_gradient(beta, X, y)) // vanilla gradient descent 
+        cost = cost_func(beta, X, y)
+        change_cost = old_cost - cost
+        num_iter += 1
+     
+    returnbeta, num_iter 
+ 
+ 
+def pred_values(beta, X):
+    '''
+    function to predict labels
+    '''
+    pred_prob = logistic_func(beta, X)
+    pred_value = np.where(pred_prob >=.5, 1, 0)
+    returnnp.squeeze(pred_value)
+ 
