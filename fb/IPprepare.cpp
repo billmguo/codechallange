@@ -3,29 +3,44 @@ node有键，值和子树。比如第一个的键是node1，值是‘aaaa'
 第二个白人大叔主要就是聊天最后剩了点时间做了一个把：abababcdcdee变成03ab02cd01ee的压缩。都两个两个的考虑
 第三个国人大哥在k个排序list里找中位数
 
- TreeNode* str2tree(string &s) {
+Construct Tree from following xml
+aaaa is the key of the Tree.
+<node1>aaaaa<node2>bbbbb</node2><node3>cccc</node3><node4>dddd</node4></node1>. 
+
+struct TreeNode{
+	string val;
+	vector<TreeNode*> child;
+	TreeNode(string &t):val(t) {};
+};
+struct TreeNode* str2tree(string &s) {
  	if (s.empty())
  		return NULL;
  	stack<TreeNode*> st;
+ 	int cnt = 0;
  	for (int i = 0; i < s.size(); i++) {
- 		if (s[i]= '<' && s[i + 1] == '/')
- 			 st.pop();
- 		else if (s[i] == '>') {
- 			int j = t = i + 1;
- 			//find the aaaa, bbbb,cccc ....
- 			while (j < s.size() && s[j] != '<')
- 				j++;
- 			sub = s.substr(t, j - t);
- 			if (!t.empty()){
- 				TreeNode *node = new TreeNode(t);
- 				if (!st.empty())
- 					TreeNode *cur = st.top();
- 					if (!cur->left) 
- 						cur->left = node;
- 					else
- 						cur->right = node;
- 				st.push(node);
- 			}
+ 		if (s[i]== '<' ){
+ 		    cnt++;
+ 		    if (i + 1 < s.size() && s[i + 1] == '/')
+ 			 	st.pop();
+ 		}else if (s[i] =='>') {
+ 				cnt--;
+	 			if (cnt == 0) {
+	 			int j = i + 1;
+	 			int t = j;
+	 			//find the aaaa, bbbb,cccc ....
+	 			while (j < s.size() && s[j] != '<')
+	 				j++;
+	 			string sub = s.substr(t, j - t);
+	 			if (!st.empty()){
+	 				TreeNode *node = new TreeNode(sub);
+	 				if (!st.empty()) {
+	 					TreeNode *cur = st.top();
+	 					cur->child.push_back(node);
+	 				}
+	 				st.push(node);
+	 			}
+	 		
+	 		}		
  		}
  	}
  	return st.top();
