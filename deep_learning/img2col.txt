@@ -1,0 +1,62 @@
+
+ 
+ 
+ 
+ 
+The above sample shows input feature map is 3*3*3,  kernel is 2*2*3  ,step = 1 Channel = 2, output height will be (3 - 2)/ 1 + 1 = 2  , so output will be (HO, WO, CHO) are (2, 2, 2);
+ 
+Here we firstly convert the 3*3*3 feature map to img2col (4, 12(2*2*3))  and img2col kernel  (2*2*3, 2) , so the result will be (4, 12) * (12, 2) = (4,2) ==> (2, 2, 2)  ourput 
+ 
+In Caffee, it uses img2col + GEMM to implement the conv layer. CONV (input feature map dot product with Kernel), the performance is worse than the Winograd implementation in the CuBLAS
+
+QC uses img2col in NN graph. Intel MKL and NVDA CuBLAS uses Winograd. 
+
+ 
+ 
+Example 
+For the 227 * 227 * 3 input image, kernel is 11*11*3(363), STRIDE = 4, PAD = 0 Channel is 96, so the output size will be 
+(227 - 11) /4 + 1=55
+ 
+So 227 * 227 * 3 image will convert to ( 11 * 11* 3, 55*55) 2D array = (363 * 3025)  and kernel will use image2col to convert to 96 (Channel) * 363  2D matrix, and [96 , 363] * [ 363 , 3025] = [96, 3025] 2D array which will convert to [96, 55, 55] CH, HO, WO 
+•	Input
+N*HI*WI(channel * height*weight)
+•	Output
+N*HO*WO(channel*height*weight), where HO = (HI + 2 * PAD - KERNEL) / STRIDE + 1 and WO likewise.
+•	Sample (as seen in ./models/bvlc_reference_caffenet/train_val.prototxt)
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv1"
+  # learning rate and decay multipliers for the filters
+  param { lr_mult: 1 decay_mult: 1 }
+  # learning rate and decay multipliers for the biases
+  param { lr_mult: 2 decay_mult: 0 }
+  convolution_param {
+    num_output: 96     # learn 96 filters
+    kernel_size: 11    # each filter is 11x11
+    stride: 4          # step 4 pixels between each filter application
+    weight_filler {
+      type: "gaussian" # initialize the filters from a Gaussian
+      std: 0.01        # distribution with stdev 0.01 (default mean: 0)
+    }
+    bias_filler {
+      type: "constant" # initialize the biases to zero (0)
+      value: 0
+    }
+  }
+}
+Deconvolution layer , Decoultion layer is mostly used in the FCN for the image segmentation   (HI - OI) / STRIDE + 1 =  (4-3)/1 + 1 = 2 ;
+Conv (3*3 Kernel  strides = 1)   
+ 
+ 
+Deconvlution (3x3 Stride = 1)  input 2*2 - > 4*4   A padding = [2,2] -> [6*6]    kernel [3*3]  output = [4*4]
+ 
+ 
+Conv layer stride = 2 input 5*5 ->3*3
+ 
+ 
+Deconvolution layer Stride = 2.  input 3*3 -> 5*5
+ 
+ 
+ 
