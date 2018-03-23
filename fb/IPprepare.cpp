@@ -46,29 +46,40 @@ struct TreeNode* str2tree(string &s) {
  	return st.top();
  }
 
+find the median from k sorted list
+
+class soultion{
+private:
+	priority_queue<int> maxh;
+	priority_queue<int, vector<int>,greater<int>> minh;
+public:
 int findmedianthinksortedlist(vector<vector<int>> &arr) {
 	int m = arr.size();
 	int n = arr[0].size();
-	int k = 0;
-	k = (m + n) % 2;
-	typedef pair<int, pp<int,int>> tpp;
-	for (int i = 0; i < arr.size();i++)
-		pq.push({arr[i][0],{i, 0}});
-	priority_queue<tpp, vector<tpp>,greater<tpp>> pq;
-	while(!pq.size() <= k) {
-		auto t = pq.top();
-		pq.pop();
-		if (t.second.second + 1  < arr[0].size())
-			pq.push(arr[t.second.frist][t.second.second + 1],{t.second.first, t.second.second + 1})
+	for (int i = 0; i < m; i++) {
+		for (int j = 0; j < n; j++) {
+			add_num(arr[i][j]);
+		}
 	}
-	if ((m + n) % 2 == 1) {
-		res = pq.top().first;
-	}else{
-		a1 = pq.pop().first;
-		a2 = pq.push(newitem).first;
-		res = (a1  + a2)/2;
-	}
-}
+	return findmedian();
+	
+    }
+    void add_num(int num) {
+    	minh.push(num);
+    	maxh.push(minh.top());
+    	minh.pop();
+    	if (minh.size() <  maxh.size()) {
+    		minh.push(maxh.top());
+    		maxh.pop();
+    	}
+    }
+    int findmedian() {
+        if (minh.size() == maxh.size())
+	return (minh.top() + maxh.top())/2 ;
+        else
+	return minh.top();
+    }
+};
 
 
 string compression(string &s) {
