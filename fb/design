@@ -1,0 +1,21 @@
+1. top n hot key word怎么生成，问了下map reduce的东西
+typeAhead 的话基本就是用trie， 生成方法就是每次用户search 或者选中一个suggestion ， 就把对应的leaf count++， 然后用这个新的count更新所有parent node的hot word list。
+ 感觉和map reduce 没关系。。。
+2. typeAhead这里的hot key words考虑多久的时效性，比如你是按照1 month，1 week，1 day 还是1 hour的数据给出hot key words。
+思路：如果按1 day来那么就无法展现1个月的情况，如果按1个月的来，那么无法展现新的热词
+方法一：可以按 每天/每小时 平均值来算
+方法二：根据不同的场景选不同的， 比如google search 可以按一年来，新鲜事搜索可以按1个月来，新闻搜索可以按一天算.
+3. 大家都知道要用Trie去存数据，并且Trie是放在cache里的，那么这个cache什么时候去更新？
+每次用户搜索后就更新；
+怎么更新？
+因为只是往trie里加分支，所以可以直接加，不用锁
+要不要加TTL？
+为了防止cache过大可以加， 可以每隔一段时间对trie清理剪枝
+
+你更新的这个cache的频率会对用户query的时效性产生很大的影响，并且你更新也会对数据库和服务器造成额外的负担，你怎么去平衡。
+multithread scheduling, Trie updating thread has lower priority
+
+4. 如果这个服务是面向多个国家的，过了一段时间你发现你的推荐在某些国家点击率很高，有些国家点击率很低，你要怎么优化。总之都和你之前的一系列答案有关。问得相当的细。. 
+一 不同的国家不同的Trie,但这样人们无法看到别的国家的人的热搜
+方法二 考虑各国人口，比如 count = count in country A/ population of country A
+方法三 有一些common的 hot word 还有一些country specific 的hot words
