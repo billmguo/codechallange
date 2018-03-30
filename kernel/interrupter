@@ -1,0 +1,140 @@
+Based on ARMV8, 64bit. 
+In ARM V8, there are 4 privilege levels: EL0, EL1, EL2 and EL3. 
+EL0 is generally user space access. 
+EL1 is OS kernel. 
+EL2 is hypervisor 
+and 
+EL3 is Secure monitor mode. 
+
+and following exceptions:
+SVC( data abort, instruction error, software triggered by svc, smc, etc commands). 
+IRQ, 
+FIRQ, 
+
+Exception table base address will be stored in VBAR_EL1/EL2/EL3 for each mode. 
+
+ARMV8 has 0-15 SGI, software generated interrupts, such as IPC in SMP. 
+16-31 PPI, privated peripheral interrupts, and 
+32-1020 SPI, shared peripheral interrupts. 
+
+a. Exception tables in EL2 mode is set up in el2_setup of stext:
+arch/arm64/kernel/head.S
+ENTRY(stext)
+        mov     x21, x0                         // x21=FDT
+        bl      el2_setup                       
+
+< snip >
+
+ENTRY(el2_setup)
+        mrs     x0, CurrentEL
+< snip >
+
+        /* Hypervisor stub */
+        adrp    x0, __hyp_stub_vectors
+        add     x0, x0, #:lo12:__hyp_stub_vectors
+        msr     vbar_el2, x0    -->> setup vbar_el2 here 
+
+
+b. Exception tables in EL1 mode is setup in stext:
+
+ENTRY(stext)
+        mov     x21, x0                         // x21=FDT
+        bl      el2_setup                       
+
+< snip > 
+
+adrp    lr, __enable_mmu                // return (PIC) address --->>>> within this func. 
+        add     lr, lr, #:lo12:__enable_mmu
+        ldr     x12, [x23, #CPU_INFO_SETUP]
+        add     x12, x12, x28                   // __virt_to_phys
+        br      x12                             // initialise processor
+
+< snip >
+__enable_mmu:
+        ldr     x5, =vectors  -->>> setup vbar_el1 
+        msr     vbar_el1, x5
+
+< snip > 
+
+
+Vectors is defined in:
+arch/arm64/kernel/entry.S
+        .align  11
+ENTRY(vectors)
+        ventry  el1_sync_invalid                // Synchronous EL1t
+        ventry  el1_irq_invalid                 // IRQ EL1t
+        ventry  el1_fiq_invalid                 // FIQ EL1t
+        ventry  el1_error_invalid               // Error EL1t
+
+        ventry  el1_sync                        // Synchronous EL1h
+        ventry  el1_irq                         // IRQ EL1h
+        ventry  el1_fiq_invalid                 // FIQ EL1h
+        ventry  el1_error_invalid               // Error EL1h
+
+        ventry  el0_sync                        // Synchronous 64-bit EL0
+        ventry  el0_irq                         // IRQ 64-bit EL0
+        ventry  el0_fiq_invalid                 // FIQ 64-bit EL0
+        ventry  el0_error_invalid               // Error 64-bit EL0
+
+#ifdef CONFIG_COMPAT
+        ventry  el0_sync_compat                 // Synchronous 32-bit EL0
+        ventry  el0_irq_compat                  // IRQ 32-bit EL0
+        ventry  el0_fiq_invalid_compat          // FIQ 32-bit EL0
+        ventry  el0_error_invalid_compat        // Error 32-bit EL0
+#else
+        ventry  el0_sync_invalid                // Synchronous 32-bit EL0
+        ventry  el0_irq_invalid                 // IRQ 32-bit EL0
+        ventry  el0_fiq_invalid                 // FIQ 32-bit EL0
+        ventry  el0_error_invalid               // Error 32-bit EL0
+#endif
+END(vectors)
+
+el0_irq:
+        kernel_entry 0
+el0_irq_naked:
+        enable_dbg
+#ifdef CONFIG_TRACE_IRQFLAGS
+        bl      trace_hardirqs_off
+#endif
+
+        ct_user_exit
+        irq_handler
+
+#ifdef CONFIG_TRACE_IRQFLAGS
+        bl      trace_hardirqs_on
+#endif
+        b       ret_to_user
+ENDPROC(el0_irq)
+
+irq_handler is : 
+/*
+ * Interrupt handling.
+ */
+        .macro  irq_handler
+        adrp    x1, handle_arch_irq
+        ldr     x1, [x1, #:lo12:handle_arch_irq]
+        mov     x0, sp
+        blr     x1
+        .endm
+        
+ handle_arch_irq -->>>>
+arch/arm64/kernel/irq.c
+set_handle_irq(void (*handle_irq)(struct pt_regs *))
+{
+        if (handle_arch_irq)
+                return;
+
+        handle_arch_irq = handle_irq;
+}
+
+rivers/irqchip/irq-gic-v3.c
+static int __init gic_of_init()
+{
+< snip >
+set_handle_irq(gic_handle_irq);
+< snip > 
+
+Eventually,  gic_handle_irq will be triggered by el0_irq
+
+
+
