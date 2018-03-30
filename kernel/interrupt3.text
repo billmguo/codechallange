@@ -1,0 +1,11 @@
+Data Which Mostly Used By An IRQ Handler
+If data is always accessed from within the same IRQ handler, you don't need a lock at all: the kernel already guarantees that the irq handler will not run simultaneously on multiple CPUs.
+
+Manfred Spraul points out that you can still do this, even if the data is very occasionally accessed in user context or softirqs/tasklets. The irq handler doesn't use a lock, and all other accesses are done as so:
+
+	spin_lock(&lock);
+	disable_irq(irq);
+	...
+	enable_irq(irq);
+	spin_unlock(&lock);
+The disable_irq() prevents the irq handler from running (and waits for it to finish if it's currently running on other CPUs). The spinlock prevents any other accesses happening at the same time. Naturally, this is slower than just a spin_lock_irq() call, so it only makes sense if this type of access happens extremely rarely.
