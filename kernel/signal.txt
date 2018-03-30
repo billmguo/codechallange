@@ -19,3 +19,48 @@ Tip 1: system call signal shouldn't be used in new design, but instead, sigactio
 Tip 2: system call signal is one_shot, because following flags are defined in the system call of signal
 
 new_sa.sa.sa_flags = SA_ONESHOT | SA_NOMASK;
+
+
+new_sa.sa.sa_flags = SA_ONESHOT | SA_NOMASK;
+
+step 2. How kernel space handles the signal "register/enable" event: 
+Here, system call:signal/sigaction is used
+kernel/kernel/signal.c: 
+SYSCALL_DEFINE2(signal, ... 
+SYSCALL_DEFINE3(sigaction, ...
+Both will trigger the do_sigaction 
+kernel/kernel/signal.c: do_sigaction
+do_sigaction behaves like request_irq and enable_irq 
+
+step 3. How kernel space generate the signal. 
+Following APIs to generate the signal
+kernel/kernel/signal.c
+force_sig/send_sig/send_sig_info
+which triggers send_signal -->  __send_signal eventually. 
+
+__send_signal()
+{
+< snip > 
+list_add_tail(&q->list, &pending->list); //The expected signal will be inserted to the signal pending list( task_sturct *t, t->pending->list. 
+< snip >
+complete_signal(sig, t, group);
+//Set the targeted task to SIGPENDING status via signal_wake_up -> signal_wake_up_state ->
+//set_tsk_thread_flag(t, TIF_SIGPENDING);
+}
+
+Tip:  difference between force_sig and send_sig is: force_sig wont be ignored
+---
+force_sig_info( ) 
+{
+< snip > 
+ ignored = action->sa.sa_handler == SIG_IGN;
+ blocked = sigismember(&t->blocked, sig);
+ if (blocked || ignored) {
+         action->sa.sa_handler = SIG_DFL; //Even if you define it as SIG_IGN, the SIG_DFL will be triggered. 
+< snip > 
+
+}
+
+step 4. How signal handler be dealed with by kernel. 
+signal handler will be handled in porcess context by ret_to_user
+do_work_pending->do_signal-> handle_signal
