@@ -1,0 +1,120 @@
+System call provides the layer between hardware and user processes.  User space send requests to kernel space to finish some actions via system call. 
+
+User Space: 
+Raise system call via libc, take ioctl as example:
+bionic/libc/arch-arm/syscalls/__ioctl.S
+ENTRY(ioctl)
+    mov     ip, r7
+    ldr     r7, =__NR_ioctl --> syscall number passed to kernel via R7 in arm32.
+    swi     #0              --> swi will trigger software interrupt, or so called mode switch to SVC mode, kernel space will catup this up via vector_swi, interrupt handler. 
+    mov     r7, ip
+    cmn     r0, #(MAX_ERRNO + 1)
+    bxls    lr
+    neg     r0, r0
+    b       __set_errno_internal
+END(__ioctl)
+
+Kernel Space: 
+a.  Catch up system call with the interrupt handler vector_swi 
+kernel/arch/arm/kernel/entry-v7m.S:
+/*
+ * Vector table (64 words => 256 bytes natural alignment)
+ */
+ENTRY(vector_table)
+        .long   0                       @ 0 - Reset stack pointer
+        .long   __invalid_entry         @ 1 - Reset
+        .long   __invalid_entry         @ 2 - NMI
+        .long   __invalid_entry         @ 3 - HardFault
+        .long   __invalid_entry         @ 4 - MemManage
+        .long   __invalid_entry         @ 5 - BusFault
+        .long   __invalid_entry         @ 6 - UsageFault
+        .long   __invalid_entry         @ 7 - Reserved
+        .long   __invalid_entry         @ 8 - Reserved
+        .long   __invalid_entry         @ 9 - Reserved
+        .long   __invalid_entry         @ 10 - Reserved
+        .long   vector_swi              @ 11 - SVCall -->  Assemble language code: "swi 0" in libc/syscalls/*.S  will trigger this interrupt. 
+        .long   __invalid_entry         @ 12 - Debug Monitor
+        .long   __invalid_entry         @ 13 - Reserved
+        .long   __pendsv_entry          @ 14 - PendSV
+        .long   __invalid_entry         @ 15 - SysTick
+        .rept   64 - 16
+        .long   __irq_entry             @ 16..64 - External Interrupts
+        .endr
+
+b. vector_swi --> The swi interrupt handler, it will find and execute the syscall handler by the syscall number passed from user space via R7 in ARM32. 
+
+kernel/arch/arm/kernel/entry-common.S:
+SWI handler
+ *-----------------------------------------------------------------------------
+ */
+        .align  5
+ENTRY(vector_swi)
+< snip > 
+   /*
+         * Pure EABI user space always put syscall number into scno (r7).
+         */
+#elif defined(CONFIG_ARM_THUMB)
+        /* Legacy ABI only, possibly thumb mode. */
+        tst     r8, #PSR_T_BIT                  @ this is SPSR from save_user_regs
+        addne   scno, r7, #__NR_SYSCALL_BASE    @ put OS number in
+--> retrieve syscall number from r7 passed from user space. 
+ USER(  ldreq   scno, [lr, #-4]         )
+
+< snip > 
+
+        adr     tbl, sys_call_table             @ load syscall table pointer  
+
+< snip > 
+        cmp     scno, #NR_syscalls              @ check upper syscall limit
+        adr     lr, BSYM(ret_fast_syscall)      @ return address
+        ldrcc   pc, [tbl, scno, lsl #2]         @ call sys_* routine
+
+< snip > 
+
+ENDPROC(vector_swi)
+
+
+c. Syscall table definition is in calls.S and included by entry-common.S
+        .type   sys_call_table, #object
+ENTRY(sys_call_table)
+#include "calls.S"
+#undef ABI
+#undef OBSOLETE
+
+d. How call.S  defines to table. 
+kernel/arch/arm/kernel/call.S
+< snip >
+
+                CALL(sys_ni_syscall)            /* was sys_lock */
+                CALL(sys_ioctl)
+< snip > 
+macro CALL is defined by kernel/arch/arm/kernel/entry-common.S
+#define CALL(x) .long x
+
+c. How x is defined
+kernel/fs/ioctl.c 
+SYSCALL_DEFINE3(ioctl, unsigned int, fd, unsigned int, cmd, unsigned long, arg)
+{
+...
+}
+
+Macro SYSCALL_DEFINE* is defined 
+kernel/include/linux/syscalls.h
+< snip >
+#define SYSCALL_DEFINE1(name, ...) SYSCALL_DEFINEx(1, _##name, __VA_ARGS__)
+#define SYSCALL_DEFINE2(name, ...) SYSCALL_DEFINEx(2, _##name, __VA_ARGS__)
+#define SYSCALL_DEFINE3(name, ...) SYSCALL_DEFINEx(3, _##name, __VA_ARGS__)
+#define SYSCALL_DEFINE4(name, ...) SYSCALL_DEFINEx(4, _##name, __VA_ARGS__)
+#define SYSCALL_DEFINE5(name, ...) SYSCALL_DEFINEx(5, _##name, __VA_ARGS__)
+#define SYSCALL_DEFINE6(name, ...) SYSCALL_DEFINEx(6, _##name, __VA_ARGS__)
+
+#define __SYSCALL_DEFINEx(x, name, ...)                                 \
+        asmlinkage long sys##name(__MAP(x,__SC_DECL,__VA_ARGS__))       \ --> define sys_ioctl needs by call.S 
+                __attribute__((alias(__stringify(SyS##name))));         \
+        static inline long SYSC##name(__MAP(x,__SC_DECL,__VA_ARGS__));  \
+        asmlinkage long SyS##name(__MAP(x,__SC_LONG,__VA_ARGS__));
+
+< snip >
+
+
+Tip: data exchange between kernel space and user space is from copy_from/to_user();
