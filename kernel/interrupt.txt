@@ -1,0 +1,105 @@
+https://mirrors.edge.kernel.org/pub/linux/kernel/people/rusty/kernel-locking/x490.html
+
+it is possible that a critical section needs to be protected by the same lock in both an interrupt and in non-interrupt (process) execution context in the kernel. In this case spin_lock_irqsave and the spin_unlock_irqrestore variants have to be used to protect the critical section. This has the effect of disabling interrupts on the executing CPU. Imagine what would happen if you just used spin_lock in the process context?
+
+Picture the following:
+
+Process context kernel code acquires lock A using spin_lock.
+While the lock is held, an interrupt comes in on the same CPU and executes.
+Interrupt Service Routing (ISR) tries to acquire lock A, and spins continuously waiting for it.
+For the duration of the ISR, the Process context is blocked and never gets a chance to run and free the lock.
+Hard lock up condition on the CPU!
+To prevent this, the process context code needs call spin_lock_irqsave which has the effect of disabling interrupts on that particular CPU along with the regular disabling of preemption we saw earlier before trying to grab the lock.
+
+Note that the ISR can still just call spin_lock instead of spin_lock_irqsave because interrupts are disabled anyway during ISR execution. Often times people use spin_lock_irqsave in an ISR, that’s not necessary.
+
+Also note that during the executing of the critical section protected by spin_lock_irqsave, the interrupts are only disabled on the executing CPU. The same interrupt can come in on a different CPU and the ISR will be executed there, but that will not trigger the hard lock condition I talked about, because the process-context code is not blocked and can finish executing the locked critical section and release the lock while the ISR spins on the lock on a different CPU waiting for it. The process context does get a chance to finish and free the lock causing no hard lock up.
+
+
+If another tasklet/timer wants to share data with your tasklet or timer , you will both need to use spin_lock() and spin_unlock() calls. spin_lock_bh() is unnecessary here, as you are already in a tasklet, and none will be run on the same CPU
+
+ometimes a tasklet or timer might want to share data with another tasklet or timer.
+Since a tasklet is never run on two CPUs at once, you don't need to worry about your tasklet being reentrant (running twice at once), even on SMP.
+
+If another tasklet/timer wants to share data with your tasklet or timer , you will both need to use spin_lock() and spin_unlock() calls. spin_lock_bh() is unnecessary here, as you are already in a tasklet, and none will be run on the same CPU.
+
+
+The same softirq can run on the other CPUs: you can use a per-CPU array  for better performance. If you're going so far as to use a softirq, you probably care about scalable performance enough to justify the extra complexity.
+
+You'll need to use spin_lock() and spin_unlock() for shared data
+
+Different Softirqs
+You'll need to use spin_lock() and spin_unlock() for shared data, whether it be a timer, tasklet, different softirq or the same or another softirq: any of them could be running on a different CPU
+
+
+Locking Between Hard IRQ and Softirqs/Tasklets
+
+Note that softirqs (and hence tasklets and timers) are run on return from hardware interrupts, so spin_lock_irq() also stops these. In that sense, spin_lock_irqsave() is the most general and powerful locking function.
+
+
+irq context
+
+-static DECLARE_MUTEX(cache_lock);
++static spinlock_t cache_lock = SPIN_LOCK_UNLOCKED;
+ static LIST_HEAD(cache);
+ static unsigned int cache_num = 0;
+ #define MAX_CACHE_SIZE 10
+@@ -55,6 +55,7 @@
+ int cache_add(int id, const char *name)
+ {
+         struct object *obj;
++        unsigned long flags;
+ 
+         if ((obj = kmalloc(sizeof(*obj), GFP_KERNEL)) == NULL)
+                 return -ENOMEM;
+@@ -63,30 +64,33 @@
+         obj->id = id;
+         obj->popularity = 0;
+ 
+-        down(&cache_lock);
++        spin_lock_irqsave(&cache_lock, flags);
+         __cache_add(obj);
+-        up(&cache_lock);
++        spin_unlock_irqrestore(&cache_lock, flags);
+         return 0;
+ }
+
+
+Some Functions Which Sleep, you can never call them while holding a spinlock, or with preemption disabled. This also means you need to be in user context: calling them from an interrupt is illegal.
+Accesses to userspace:
+
+copy_from_user()
+
+copy_to_user()
+
+get_user()
+
+put_user()
+
+kmalloc(GFP_KERNEL)
+
+down_interruptible() and down()
+
+
+There is a special method of read/write locking called Read Copy Update. Using RCU, the readers can avoid taking a lock altogether: as we expect our cache to be read more often than updated (otherwise the cache is a waste of time), it is a candidate for this optimization.
+
+But how does Read Copy Update know when the readers are finished? The method is this: firstly, the readers always traverse the list inside rcu_read_lock()/rcu_read_unlock() pairs: these simply disable preemption so the reader won't go to sleep while reading the list.
+
+RCU then waits until every other CPU has slept at least once: since readers cannot sleep, we know that any readers which were traversing the list during the deletion are finished, and the callback is triggered. The real Read Copy Update code is a little more optimized than this, but this is the fundamental idea.
+
+ struct object *cache_find(int id)
+ {
+         struct object *obj;
+-        unsigned long flags;
+ 
+-        spin_lock_irqsave(&cache_lock, flags);
++        rcu_read_lock();
+         obj = __cache_find(id);
+         if (obj)
+                 object_get(obj);
+-        spin_unlock_irqrestore(&cache_lock, flags);
++        rcu_read_unlock();
+         return obj;
+ }
+
+ because the 'read lock' in RCU is simply disabling preemption, a caller which always has preemption disabled between calling cache_find() and object_put() does not need to actually get and put the reference count: we could expose __cache_find() by making it non-static, and such callers could simply call that.
