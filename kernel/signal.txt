@@ -1,0 +1,21 @@
+A signal is a very short message that may be sent to a process or a group 
+of processes. Sounds like a software interrupt??
+Signals serve 2 main purposes:
+a--> Notice the process a specified event happens.
+b--> Trigger the signal handler defined by the process. 
+
+ollowing items will be involved with signals: 
+step 1. Applications define and register the signal handler:
+#include < signal.h > 
+static void signal_handler( int signo ) {};  // Define the signal handler. 
+
+main()
+{
+
+	if ( SIG_ERR == signal( signo, signal_handler ) ) {} // register the signal handler
+}
+Attention: system_call will be interrupted by signal in process...... 
+Tip 1: system call signal shouldn't be used in new design, but instead, sigaction will be used. 
+Tip 2: system call signal is one_shot, because following flags are defined in the system call of signal
+
+new_sa.sa.sa_flags = SA_ONESHOT | SA_NOMASK;
