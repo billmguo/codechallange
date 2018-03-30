@@ -1,0 +1,19 @@
+If you are in a process context (any syscall) and want to lock other process out, use a semaphore. You can take a semaphore and sleep (copy_from_user*( or kmalloc(x,GFP_KERNEL)).
+
+Otherwise (== data can be touched in an interrupt), use spin_lock_irqsave() and spin_unlock_irqrestore().
+
+Avoid holding spinlock for more than 5 lines of code and across any function call (except accessors like readb).
+
+
+
+========================
+
+Another technique for avoiding locking which is used fairly widely is to duplicate information for each CPU. For example,
+if you wanted to keep a count of a common condition, you could use a spin lock and a single counter. Nice and simple.
+
+If that was too slow (it's usually not, but if you've got a really big machine to test on and can show that it is), 
+you could instead use a counter for each CPU, then none of them need an exclusive lock. 
+See DEFINE_PER_CPU(), get_cpu_var() and put_cpu_var() (include/linux/percpu.h).
+
+Of particular use for simple per-cpu counters is the local_t type, and the cpu_local_inc() and related functions, 
+which are more efficient than simple code on some architectures (include/asm/local.h).
