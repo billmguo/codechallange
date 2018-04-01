@@ -1,0 +1,2 @@
+addr = (int *)mmap(0, SIZE, PROT_READ, MAP_PRIVATE,
+            fd, offset);
