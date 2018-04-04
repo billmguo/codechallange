@@ -1,0 +1,108 @@
+-- kernel thread----
+< 12/03/2015 based on 8996 cs release kernel 3.18 >
+kernel thread: processes that have no user context. 
+So that the mm field of kernel thread's process descriptor is NULL. 
+
+That would be fine because kernel thread do not ever access any user space momory. 
+
+When a kernel thread is scheduled, scheduler notices that mm is NULL, and keeps the previous process's address space loaded. 
+
+kthread initialization: init/main.c 
+init/main.c will create the first 2 kernel threads with the original API: 
+kernel_thread( ) { do_fork() eventually } as: kernel_init() and kthreadd().
+
+pid = kernel_thread( kthreadd, NULL, CLONE_FS | CLONE_FILES );
+kthreadd_task = find_task_by_pid_ns( pid, &init_pid_ns);
+
+
+kthreadd( house keeping ) and APIs for users: kernel/kernel/kthread.c 
+After ktreadd_task is initialized, other components can make use of kthread_create()
+{ kernel/include/linux/kthread.h, in fact, it's a wrap of kthread_create_on_node of kernel/kernel/kthread.c } 
+to request kthread creating.  
+
+#define kthread_create(threadfn, data, namefmt, arg...) \
+        kthread_create_on_node(threadfn, data, -1, namefmt, ##arg) //-1 means not specified to a CPU. 
+
+Example of kthread_create():
+kernel/kernel/irq/manage.c:
+static int
+__setup_irq(unsigned int irq, struct irq_desc *desc, struct irqaction *new)
+{
+< snip > 
+
+t = kthread_create(irq_thread, new, "irq/%d-%s", irq,
+                                   new->name);
+< snip > 
+sched_setscheduler_nocheck(t, SCHED_FIFO, &param);
+
+< snip > 
+}
+
+Tips:
+1 -->   kernel threads are created as normal priority thread.
+struct task_struct *kthread_create_on_node(int (*threadfn)(void *data),
+                                           void *data, int node,
+                                           const char namefmt[],
+                                           ...)
+{
+
+< snip > 
+
+        sched_setscheduler_nocheck(task, SCHED_NORMAL, &param);
+        set_cpus_allowed_ptr(task, cpu_all_mask);
+
+< snip > 
+
+and component can use sched API to change it such as irq_thread does. 
+
+
+-- work queue ----
+< 12/04/2015 based on 8996 cs release kernel 3.18 >
+Initialization：kernel/kernel/workqueue.c 
+early_initcall(init_workqueues);  
+Tip 1: early_initcall, first level initcall in init/main.c: 
+kernel_init ( the first kernel thread created by rest_init to do kernel init jobs) --> kernel_init_freeable -->  do_basic_setup --> do_initcalls --> do_initcall_levels  --> early_initcall. 
+
+
+init_workqueues will create following standard workqueues:
+system_wq -->  INIT_WORK, schedule_work, schedule_delay_work will make use of it by default.
+system_long_wq -->  file system and BT HCI use it. 
+system_highpri_wq -->  for higher priority workers, nice = - 20, SCHED_NORMAL
+system_unbound_wq
+system_freezable_wq --> The work submited after freezing will be to the delay work. 
+kernel/power/process.c:  try_to_freeze_tasks -->  free_workqueues_begin(), free_workqueues_busy, thaw_workqueues()
+
+
+APIs for kernel developers to use:
+a. Define a work
+INIT_WORK(&work, f), -->   dynamical allocate work. 
+DECLARE_WORK(name, f) -->  static declare
+
+b. Enable a work
+schedule_work(), schedule_delay_work()
+
+c. Stop a work
+cancel_work_sync, cancel_delayed_work()
+Generally, should be used with the work state checking, as example:
+if ( work_pending(work) )
+	cancel_work_sync();
+
+if ( delayed_work_pending( work ) ) 
+//Attention, delayed work queue need to be caneled anyway, because it has timer at background. 
+	cancel_delayed_work();
+
+d. Create a new workqueue instead of the predefined system*wq, and related APIs
+
+alloc_workqueue, flush_workqueue, destroy_workqueue
+
+with a self created workqueue, we need use queue_work instead of schedule_work ( just a wrap of queue_work on system_wq). 
+
+Tips:  There is a special component in kernel names as task_work, used by irq/manage.c, fs/file_table.c, namspace.c and sched/fair.c, qhmp_fair.c 
+source code:
+kernel/kernel/task_work.c
+APIs:
+#include <task_work.h>
+init_task_work
+task_work_add 
+task_work_cancel
+task_work_run
