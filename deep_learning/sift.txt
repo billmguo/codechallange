@@ -1,0 +1,12 @@
+SIFT (Scale Invariant Feature Transform)
+https://www.jianshu.com/p/b1af388efe43
+1. Generate Gussian layers (3-5) and calcuate the DOG layers
+2.  Get the maxium/mimunvalue in 2*9 + 8 comparsion
+3. use nearest pixel grident to determine the direction.
+4. use historgam to get the maxium direction
+5. Rotation the image to the maxium direction. 
+6. calcuate the 8(direction)*4*4 feature vector for one image.
+7. use normalization to remove the light impact.
+8. Compare the 1NN (closet point)
+
+https://zhuanlan.zhihu.com/p/22476595
