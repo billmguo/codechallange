@@ -1,0 +1,51 @@
+http://faq.programmerworld.net/programming/Best-Questions-for-Embedded-Programmers.htm 
+
+#define MIN(A,B) ((A) > (B)?(A):(B))
+
+
+bool isPowerOfFour(int num) {
+    return num > 0 && (num & (num - 1)) == 0 && (num - 1) % 3 == 0;
+}
+
+１ 问清 requirement ５～１０ 分钟
+２ high level design（设计flow 相关api 和数据存储）
+３ 细节设计，详谈flow， api
+
+static int count1 = 0;
+void function1(void) 
+{ 
+	while(count1 < 100){
+		sem_wait(&mutex1);
+		cnt++;
+		sem_post(&mutex2);
+	} 
+} 
+
+
+void function2(void) 
+{ 
+	while(count1 < 100){ 
+		sem_wait(&mutex2); 
+		cnt++;  
+		sem_post(&mutex1); 
+	}	
+} 
+
+main() 
+{ 
+	int rc1, rc2;
+	pthread_t th1, th2;
+	sem_init(&mutex1, 0, 1);
+	sem_init(&mutex2, 0, 0);
+	if (rc1 = pthread_create(&th1, NULL, &func1, NULL)) {
+		return F1;
+	}
+	if (rc1 = pthread_create(&th2, NULL, &func2, NULL)) {
+		return F2;
+	}
+
+	pthread_join(th1, NULL); 
+	pthread_join(th2, NULL); 
+
+	exit(0); 
+}
