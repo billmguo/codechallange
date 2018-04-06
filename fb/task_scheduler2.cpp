@@ -3,6 +3,26 @@
 #include <string>
 using namespace std;
 
+
+int task_scheduler2(string task, int k) {
+	unordered_map<int, int> m;
+	int t = 0;
+	
+	for (int i = 0; i < task.size(); i++) {
+		int cur = task[i];
+		if (!m.count(cur)) {
+			m[cur] = t + k + 1;
+		} else {
+			int last = m[cur];
+			if (t >= last)
+				m[cur] = t;
+			else
+			    i--;
+		}
+		t++;
+	}
+	return t;
+}
 int task_scheduler(string task, int k) {
 	unordered_map<int, int> m;
 	int t = 0;
