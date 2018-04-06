@@ -1,0 +1,66 @@
+DSP HVX QCOM
+ 
+git clone https://source.codeaurora.org/quic/hexagon_nn/nnlib
+cd nnlib
+ 
+Read the ops/asm can understand the detail and optimization , especially the quantization parts. Internal version has mobilenet nn graph
+ 
+DSP highlight (L2 32KB, L1 16KB, L2 512KB DDR 14GBps)
+ 
+Scalar unit , connect to L1
+Orthogonal 4-issue VLIW
+64bit vector unit
+4 Threads, 1 LD, 1 ST, 2 MPY
+ 
+HVX Coprocessor  2 thread
+ 
+Scatter/Gathter for VTCM(256KB) load and store.
+Q0-Q3 comparator 8:1 (512/8 = 64bits)
+Work mode 4 * 512 Bit   2 *1024Bit
+ 
+compiler llvm 7.2/8
+add -mhvx -mv65 (v65 is architecture) -O2(optimization level with intrinsics)
+--profile --timing  to profile
+HVX_VectorPair
+ 
+Lane movement:
+32 bits(4 bytes) shuffle and widening
+shuffle convert the 32bit->16bit->8bit result.
+widening 8bit->16bit->32bit for multiple
+ 
+Reduce multiply (VRMPY)
+for 3*3 Conv optimization calcuate the one row one time. vrmpy , shift, satuature and reduce to output
+group the instructon together,  MPY can only have one in one group in one thread cycle
+mpy can group with valign, vmem, vadd
+ 
+{ v2.w=vasl(v0.w,r3) // move from salar to vfifo
+v4.w = vadd(v5.w,v6.w) ///vector add
+r5 = add(r1,r2) } //completed in scalar
+ 
+nt no temperal will remove the entry in L2 cache , reduce the cache pressure.
+ 
+Scalar/l2 Cache/L1 Cache/Vector Data transfer and optmization
+ 
+Scalar Data -> Vector Data  easy --> VFIFO
+Vector->Scalar difficult try to move to L2 cache and use DCFETCH to read from L1 in Scalar
+ 
+vector store will invalidate the L1 cache and follow up scalar will have l1 miss when access
+same content  DCFETCH can get the data from l2 to L1, after the vector store, can execute DCFETCH
+L2FETCH prefetch the data to L2 in background, DCFETCH not necessary when use L2FETCH
+ 
+use barrier to sync the thread, break image into small
+ 
+ 
+OS
+ 
+create thread from HVX OS layer via Qurt
+schedule thread and attach to the HVX context with semaphore. If 2 HVX thread exhausted, use scalar
+vote for the DVCS for the maximum freq
+Execute forward NN graph propagation
+add profile for each layer.
+ 
+ 
+ARM Neon(SIMD extension) TBD
+ 
+Refer code tensorflow lite https://developer.android.com/ndk/guides/neuralnetworks/index.html
+ 
