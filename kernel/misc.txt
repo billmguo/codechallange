@@ -1,0 +1,23 @@
+You can use the method spin_lock_init() to initialize a dynamically created spin lock 
+(a spinlock_t that you do not have a direct reference to, just a pointer). The method spin_trylock()
+attempts to obtain the given spin lock. If the lock is contended, rather than spin and wait for the lock to be released,
+
+seamphaore 
+
+static DECLARE_MUTEX(mr_sem);
+/* attempt to acquire the semaphore ... */ if (down_interruptible(&mr_sem)) { /* signal received, semaphore not acquired ... */ }
+/* critical region ... */
+/* release the given semaphore */ up(&mr_sem); 
+
+
+init_completion(struct completion *) Initializes the given dynamically created completion variable 
+wait_for_completion(struct completion *) Waits for the given completion variable to be signaled complete(struct completion *) 
+Signals any waiting tasks to wake up
+
+ftrace 
+https://lwn.net/Articles/365835/
+
+[tracing]# echo 0 > tracing_on
+    [tracing]# echo function_graph > current_tracer
+    [tracing]# echo 1 > tracing_on; run_test; echo 0 > tracing_on
+The first line disables the ring buffer from recording any data. The next enables the function graph tracer. The overhead of the function graph tracer is still present but nothing will be recorded into the trace buffer. The last line enables the ring buffer, runs the test program, then disables the ring buffer. This narrows the data stored by the function graph tracer to include mostly just the data accumulated by the run_test program.
