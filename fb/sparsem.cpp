@@ -179,3 +179,120 @@ int main() {
     sl.print(res, A.size(), B.size());
     return 0;
 }
+
+
+
+Sparsity 
+
+1.
+
+In linked list, each node has four fields. These four fields are defined as:
+
+Row: Index of row, where non-zero element is located
+Column: Index of column, where non-zero element is located
+Value: Value of the non zero element located at index – (row,column)
+Next node: Address of the next node
+
+struct Node
+{
+    int value;
+    int r;
+    int c;
+    struct Node *next;
+};
+
+void create_new_node(Node *&head, Node *&tail, int val, int r, int c )
+{
+    Node *cur, *r;
+    cur = start;
+    Node *newnode = new Node(val, r, c);
+    if (head == NULL) {
+        head = newnode;
+    } else {
+        tail -> next = newnode;
+        tail = tail -> next;
+    }
+}
+
+2.
+map< pair<int,int>, int > new_matrix;
+
+3.
+struct row_list
+{
+    int r;
+    struct row_list *link_down;
+    struct value_list *link_right;
+};
+ 
+// Node to represent triples
+struct value_list
+{
+    int c;
+    int value;
+    struct value_list *next;
+};
+
+4.
+
+Input : 0  0  0  0
+        5  8  0  0
+        0  0  3  0
+        0  6  0  0
+
+Solution: When the matrix is read row by 
+          row, the A vector is [ 5 8 3 6]
+          The JA vector stores column indices
+          of elements in A hence, JA = [ 0 1 2 
+           1]. IA[0] = 0. IA[1] = IA[0] + no  
+          of non-zero elements in row 0 
+          i.e 0 + 0 = 0.
+          Similarly,
+          IA[2] = IA[1] + 2 = 2
+          IA[3] = IA[2] + 1 = 3  
+          IA[4] = IA[3]+1 = 4
+          Therefore IA = [0 0 2 3 4]
+          The trick is remember that IA[i]
+          stores NNZ upto and not-including 
+          i row.
+
+Input : 10  20  0  0  0  0
+         0  30  0  4  0  0
+         0   0 50 60 70  0
+         0   0  0  0  0 80
+
+Output :  A = [10 20 30 4 50 60 70 80],
+         IA = [0 2 4 7 8]
+         JA = [0  1 1 3 2 3 4 5]
+
+
+SPARSIFY (MATRIX)
+Step 1: Set M to number of rows in MATRIX
+Step 2: Set N to number of columns in MATRIX
+Step 3: I = 0, NNZ = 0. Declare A, JA, and IA. 
+        Set IA[0] to 0
+Step 4: for I = 0 ... N-1
+Step 5: for J = 0 ... N-1
+Step 5: If MATRIX [I][J] is not zero
+           Add MATRIX[I][J] to A
+           Add J to JA
+           NNZ = NNZ + 1
+        [End of IF]
+Step 6: Add NNZ to IA
+        [ End of J loop ]
+        [ End of I loop ]
+Step 7: Print vectors A, IA, JA
+Step 8: END
+
+
+ for (i = 0; i < m; i++) {
+        for (j = 0; j < n; j++) {
+            if (M[i][j] != 0) {
+                A.push_back(M[i][j]);
+                JA.push_back(j);
+                NNZ++;
+            }
+        }
+        IA.push_back(NNZ);
+    }
+
