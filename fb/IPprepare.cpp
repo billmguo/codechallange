@@ -150,3 +150,42 @@ for (int i = pos, i < nums.size(); i++) {
   	return res;
   }
 
+Given a string that contains only digits 0-9 and a target value, return all possibilities to add binary operators (not unary) +, -, or * between the digits so they evaluate to the target value.
+
+Examples: 
+"123", 6 -> ["1+2+3", "1*2*3"] 
+"232", 8 -> ["2*3+2", "2+3*2"]
+"105", 5 -> ["1*0+5","10-5"]
+"00", 0 -> ["0+0", "0-0", "0*0"]
+"3456237490", 9191 -> []
+
+public:
+    vector<string> addOperators(string num, int target) {
+        vector<string> res;
+        if(num.size()==0)  
+            return res;
+        help(res, "", num, target, 0, 0, 0);
+        return res;
+    }
+    
+    void help(vector<string> &res, string path, string num, int target, int pos,  long cur, long prev){
+        if(pos == num.size()){
+            if(cur == target)   
+                res.push_back(path);
+            return;
+        }
+        for (int i = pos; i < num.size(); i++) {
+            if (num[pos] == '0' && i > pos) 
+                break;
+            string str = num.substr(pos, i - pos + 1);
+            long v = stol(str);
+            if (pos == 0)
+                help(res, path + str, num, target, i + 1, v, v);
+            else {
+                help(res, path + "+" + str, num, target, i + 1, cur + v, v);
+                help(res, path + "-" + str, num, target, i + 1, cur - v, -v);
+                help(res, path + "*" + str, num, target, i + 1, cur - prev + prev*v, prev*v);
+            }
+        }
+    }
+};
