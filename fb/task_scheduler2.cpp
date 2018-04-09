@@ -44,3 +44,29 @@ int main() {
 	cout << res<<endl;
 	return 0;
 }
+
+
+Example:
+
+Input: 4, 14, 2
+
+Output: 6
+
+Explanation: In binary representation, the 4 is 0100, 14 is 1110, and 2 is 0010 (just
+showing the four bits relevant in this case). So the answer will be:
+HammingDistance(4, 14) + HammingDistance(4, 2) + HammingDistance(14, 2) = 2 + 2 + 2 = 6.
+	
+class Solution {
+public:
+    int totalHammingDistance(vector<int>& nums) {
+        int res = 0, n = nums.size();
+        for (int i = 0; i < 32; ++i) {
+            int cnt = 0;
+            for (int num : nums) {
+                if (num & (1 << i)) ++cnt;
+            }
+            res += cnt * (n - cnt);
+        }
+        return res;
+    }
+};
