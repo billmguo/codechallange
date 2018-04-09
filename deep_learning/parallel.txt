@@ -1,0 +1,50 @@
+https://zhuanlan.zhihu.com/p/35083779
+
+数据并行可以是同步的（synchronous），也可以是异步的（asynchronous）。所谓同步指的是所有的设备都是采用相同的模型参数来训练，等待所
+有设备的mini-batch训练完成后，收集它们的梯度然后取均值，然后执行模型的一次参数更新。这相当于通过聚合很多设备上的mini-batch形成一个
+很大的batch来训练模型
+
+但是异步训练的一个很严重的问题是梯度失效问题（stale gradients），刚开始所有设备采用相同的参数来训练，但是异步情况下，某个设备完成一步训练后，
+可能发现模型参数其实已经被其它设备更新过了，此时这个梯度就过期了，因为现在的模型参数和训练前采用的参数是不一样的。由于梯度失效问题，异步训练虽然速度快，
+但是可能陷入次优解（sub-optimal training performance）。
+
+在Ring-allreduce架构中，各个设备都是worker，并且形成一个环，如下图所示，没有中心节点来聚合所有worker计算的梯度。
+在一个迭代过程，每个worker完成自己的mini-batch训练，计算出梯度，并将梯度传递给环中的下一个worker，同时它也接收从上
+一个worker的梯度。对于一个包含 N 个worker的环，各个worker需要收到其它个 N-1 worker的梯度后就可以更新模型参数。
+其实这个过程需要两个部分：scatter-reduce和allgather
+
+Parameter server架构
+
+在Parameter server架构（PS架构）中，集群中的节点被分为两类：parameter server和worker。其中parameter server存放模型的参数，而
+worker负责计算参数的梯度。在每个迭代过程，worker从parameter sever中获得参数，然后将计算的梯度返回给parameter server，
+parameter server聚合从worker传回的梯度，然后更新参数，并将新的参数广播给worker。
+
+这个client是个很重要的概念，简单来说就是一个程序，它创建了TF的计算图，并通过建立Session与cluster中的设备进行交互。说白了
+前面创建的cluster与server只是搭建分布式环境，真正要执行计算需要创建client。对于tf.Session这个类，其第一个参数是target，
+一般情况下大家确实用不到，因为不指定这个参数的话，Session就默认调用本地设备，但是在分布式环境就需要指定了，这就是server里面的
+master（server.target提供这个参数）。
+
+就是说client要跑计算时，其实要先要把计算图以及要执行的节点（Graph中的Node）发给master，master负责资源调度（就是这个计算该怎么执行，
+在哪些设备执行），最终的执行需要各个worker进程（使用本地设备执行计算），所以每个server会包含master和worker两个部分。
+
+In-graph replication：只构建一个client，这个client构建一个Graph，Graph中包含一套模型参数，放置在ps上
+，同时Graph中包含模型计算部分的多个副本，每个副本都放置在一个worker上，这样多个worker可以同时训练复制的模型。
+TensorFlow教程中的使用多个GPUs训练cifar10分类模型就属于这个类型，每个GPUs上的计算子图是相同的，
+但是属于同一个Graph。这种方法很少使用，因为一旦client挂了，整个系统就全崩溃了，容错能力差。
+
+Between-graph replication：每个worker都创建一个client，这个client一般还与task的主程序在同一进程中。
+各个client构建相同的Graph，但是参数还是放置在ps上。这种方式就比较好，一个worker的client挂掉了，系统还可以继续跑。
+Asynchronous training：异步方式训练，各个worker自己干自己的，不需要与其它worker来协调，前面也已经详细介绍了异步训练，
+上面两种方式都可以采用异步训练。
+Synchronous training：同步训练，各个worker要统一步伐，计算出的梯度要先聚合才可以执行一次模型更新，对于In-graph 
+replication方法，由于各个worker的计算子图属于同一个Graph，很容易实现同步训练。但是对于Between-graph replication方式，
+各个worker都有自己的client，这就需要系统上的设计了，TensorFlow提供了tf.train.SyncReplicasOptimizer来实现Between-graph 
+replication的同步训练
+
+采用Between-graph replication方式的另外一个问题，由于各个worker都独立拥有自己的client，但是对于一些公共操作比如模型参数初始化
+与checkpoint文件保存等，如果每个client都独立进行这些操作，显然是对资源的浪费。为了解决这个问题，一般会指定一个worker为chief 
+worker，它将作为各个worker的管家，协调它们之间的训练，并且完成模型初始化和模型保存和恢复等公共操作。
+
+它只是收集足够的梯度（N个step的梯度结果）就聚合这些梯度值然后执行一次参数更新。但是它不管这N个结果是从哪里来的，
+如果其中某个worker速度很慢，可能这N个结果都是从其他worker计算出的。言外之意就是chief worker聚合的梯度不一定是从全部w
+orker中收集而来
