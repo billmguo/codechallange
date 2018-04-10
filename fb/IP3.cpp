@@ -261,3 +261,96 @@ public:
         return -1;
     }
 };
+
+Wildcard Matching
+
+class Solution {
+public:
+    bool isMatch(string s, string p) {
+        int ssize = (int) s.size();
+        int psize = (int) p.size();
+        int i=0,j=0,si=0,sj=psize;
+        while(i<ssize){
+            if(s[i]==p[j]||p[j]=='?'){
+                i++;
+                j++;
+            } else if(p[j]=='*'){
+                sj = j++;
+                si = i;
+            } else if(sj<psize){
+                j = sj+1 ;
+                i = ++si;
+            } else
+                return false;
+        }
+       while(p[j]=='*'){
+           j++;
+       }
+       return j==psize;
+   }  
+};
+
+class Solution {
+public:
+    bool isMatch(string s, string p) {
+        int m = s.size(), n = p.size();
+        vector<vector<bool>> dp(m + 1, vector<bool>(n + 1, false));
+        dp[0][0] = true;
+        for (int i = 1; i <= n; ++i) {
+            if (p[i - 1] == '*') dp[0][i] = dp[0][i - 1];
+        }
+        for (int i = 1; i <= m; ++i) {
+            for (int j = 1; j <= n; ++j) {
+                if (p[j - 1] == '*') {
+                    dp[i][j] = dp[i - 1][j] || dp[i][j - 1];
+                } else {
+                    dp[i][j] = (s[i - 1] == p[j - 1] || p[j - 1] == '?') && dp[i - 1][j - 1];
+                }
+            }
+        }
+        return dp[m][n];
+    }
+};
+
+
+Regular match 
+
+class Solution {
+public:
+    bool isMatch(string s, string p) {
+        if (p.empty())  
+            return s.empty();
+        if (p[1] != '*') {
+            return !s.empty() && (p[0] == s[0] || p[0] == '.') && isMatch(s.substr(1), p.substr(1)); 
+        }else {
+            return isMatch(s, p.substr(2)) || !s.empty() && (s[0] == p[0] || '.' == p[0]) && isMatch(s.substr(1), p);
+        }
+    }
+};
+
+1.  P[i][j] = P[i - 1][j - 1],
+ if p[j - 1] != '*' && (s[i - 1] == p[j - 1] || p[j - 1] == '.');
+2.  P[i][j] = P[i][j - 2], 
+if p[j - 1] == '*' and the pattern repeats for 0 times;
+3.  P[i][j] = P[i - 1][j] && (s[i - 1] == p[j - 2] || p[j - 2] == '.'), 
+if p[j - 1] == '*' and the pattern repeats for at least 1 times.
+
+
+class Solution {
+public:
+    bool isMatch(string s, string p) {
+        int m = s.size(), n = p.size();
+        vector<vector<bool>> dp(m + 1, vector<bool>(n + 1, false));
+        dp[0][0] = true;
+        for (int i = 0; i <= m; ++i) {
+            for (int j = 1; j <= n; ++j) {
+                if (j > 1 && p[j - 1] == '*') {
+                    dp[i][j] = dp[i][j - 2] || (i > 0 && (s[i - 1] == p[j - 2] || p[j - 2] == '.') && dp[i - 1][j]);
+                } else {
+                    dp[i][j] = i > 0 && dp[i - 1][j - 1] && (s[i - 1] == p[j - 1] || p[j - 1] == '.');
+                }
+            }
+        }
+        return dp[m][n];
+    }
+};
