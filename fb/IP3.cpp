@@ -159,3 +159,85 @@ vector<pp> knn(vector<pp> &points) {
     }
     return res;
 }
+
+class Solution {
+public:
+    int findMaxConsecutiveOnes(vector<int>& nums) {
+        int res = 0, cur = 0, cnt = 0;
+        for (int num : nums) {
+            ++cnt;
+            if (num == 0) {
+                cur = cnt;
+                cnt = 0;
+            } 
+            res = max(res, cnt + cur);
+        }
+        return res;
+    }
+};
+
+
+
+Input: [0,1,2,4,5,7]
+Output: ["0->2","4->5","7"]
+
+vector<string> summaryRanges(vector<int>& nums) {
+    const int size_n = nums.size();
+    vector<string> res;
+    if ( 0 == size_n) return res;
+    for (int i = 0; i < size_n;) {
+        int start = i, end = i;
+        while (end + 1 < size_n && nums[end+1] == nums[end] + 1) end++;
+        if (end > start) res.push_back(to_string(nums[start]) + "->" + to_string(nums[end]));
+        else res.push_back(to_string(nums[start]));
+        i = end+1;
+    }
+    return res;
+}
+
+Given an absolute path for a file (Unix-style), simplify it.
+
+For example,
+path = "/home/", => "/home"
+path = "/a/./b/../../c/", => "/c"
+
+
+class Solution {
+public:
+    string simplifyPath(string path) {
+        string res, t;
+        stringstream ss(path);
+        vector<string> v;
+        while (getline(ss, t, '/')) {
+            if (t == "" || t == ".") continue;
+            if (t == ".." && !v.empty()) v.pop_back();
+            else if (t != "..") v.push_back(t);
+        }
+        for (string s : v) res += "/" + s;
+        return res.empty() ? "/" : res;
+    }
+};
+class Solution {
+public:
+    string simplifyPath(string path) {
+        vector<string> v;
+        char *cstr = new char[path.length() + 1];
+        strcpy(cstr, path.c_str());
+        char *pch = strtok(cstr, "/");
+        while (pch != NULL) {
+            string p = string(pch);
+            if (p == "..") {
+                if (!v.empty()) v.pop_back();
+            } else if (p != ".") {
+                v.push_back(p);
+            }
+            pch = strtok(NULL, "/");
+        }
+        if (v.empty()) return "/";
+        string res;
+        for (int i = 0; i < v.size(); ++i) {
+            res += '/' + v[i];
+        }
+        return res;
+    }
+};
