@@ -111,8 +111,8 @@ string compression(string &s) {
  }
 int dfs(TreeNode* node, int& res) {
 	if (!node) return 0;
-	int left = max((dfs(node->left), res), 0);
-	int right = max((dfs(node->right), res), 0);
+	int left = max(heler(node->left,res),0);
+        int right = max(helper(node->right, res), 0);
 	res = max(res, left + right + node->val);
 	return max(left, right) + node->val;
 }
