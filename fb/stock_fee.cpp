@@ -26,17 +26,18 @@ public:
     }
 };
 
-int getmaxstock_withfee(vector<int> prices, int fee) {
-	int local =  0;
-	int global = 0;
-	for (int i = 1; i < prices.size();i++) {
-		int profit = prices[i] - profits[i-1] - fee;
-		local = (proit > 0?) profit:0 + max(local, global);
-		global = max(global, local);
-	}
-	return global;
-}
-
+class Solution {
+public:
+    int maxProfit(vector<int>& prices, int fee) {
+        int sold = 0, hold = -prices[0];
+        for (int price : prices) {
+            int t = sold;
+            sold = max(sold, hold + price - fee);
+            hold = max(hold, t - price);
+        }
+        return sold;
+    }
+};
 public:
     string numberToWords(int num) {
         if (num == 0) return "Zero";
