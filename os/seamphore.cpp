@@ -9,7 +9,7 @@ private:
 	condition_variable cv;
 	int count;
 public:
-	semaphore(int _count):count(count) {};
+	semaphore(int _count):count(_count) {};
 	void sem_post() {
 		unique_lock<mutex> l(m);
 		count++;
