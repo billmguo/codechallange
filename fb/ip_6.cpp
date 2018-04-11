@@ -85,3 +85,27 @@ public:
         return false;
     }
 };
+
+Given m arrays, and each array is sorted in ascending order. Now you can pick up two integers from two different arrays (each array picks one) and calculate the distance. We define the distance between two integers a and b to be their absolute difference |a-b|. Your task is to find the maximum distance.
+
+Example 1:
+
+Input: 
+[[1,2,3],
+ [4,5],
+ [1,2,3]]
+
+ Output: 4
+
+class Solution {
+public:
+    int maxDistance(vector<vector<int>>& arrays) {
+        int res = 0, mins = arrays[0][0], maxe = arrays[0].back();
+        for (int i = 1; i < arrays.size(); ++i) {
+            res = max(res, max(abs(arrays[i].back() - mins), abs(maxe - arrays[i][0])));
+            mins = min(mins, arrays[i][0]);
+            maxe = max(maxe, arrays[i].back());
+        }
+        return res;
+    }
+};
