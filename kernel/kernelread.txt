@@ -1,4 +1,5 @@
-System call provides the layer between hardware and user processes.  User space send requests to kernel space to finish some actions via system call. 
+System call provides the layer between hardware and user processes.  User space send requests to kernel space to
+finish some actions via system call. 
 
 User Space: 
 Raise system call via libc, take ioctl as example:
@@ -6,7 +7,8 @@ bionic/libc/arch-arm/syscalls/__ioctl.S
 ENTRY(ioctl)
     mov     ip, r7
     ldr     r7, =__NR_ioctl --> syscall number passed to kernel via R7 in arm32.
-    swi     #0              --> swi will trigger software interrupt, or so called mode switch to SVC mode, kernel space will catup this up via vector_swi, interrupt handler. 
+    swi     #0              --> swi will trigger software interrupt, or so called mode switch to SVC mode,
+    kernel space will catup this up via vector_swi, interrupt handler. 
     mov     r7, ip
     cmn     r0, #(MAX_ERRNO + 1)
     bxls    lr
