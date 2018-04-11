@@ -81,11 +81,15 @@ kmalloc(GFP_KERNEL)
 down_interruptible() and down()
 
 
-There is a special method of read/write locking called Read Copy Update. Using RCU, the readers can avoid taking a lock altogether: as we expect our cache to be read more often than updated (otherwise the cache is a waste of time), it is a candidate for this optimization.
+There is a special method of read/write locking called Read Copy Update. Using RCU, the readers can avoid taking a lock 
+altogether: as we expect our cache to be read more often than updated (otherwise the cache is a waste of time), it is a
+candidate for this optimization.
 
 But how does Read Copy Update know when the readers are finished? The method is this: firstly, the readers always traverse the list inside rcu_read_lock()/rcu_read_unlock() pairs: these simply disable preemption so the reader won't go to sleep while reading the list.
 
-RCU then waits until every other CPU has slept at least once: since readers cannot sleep, we know that any readers which were traversing the list during the deletion are finished, and the callback is triggered. The real Read Copy Update code is a little more optimized than this, but this is the fundamental idea.
+RCU then waits until every other CPU has slept at least once: since readers cannot sleep, we know that any readers which were
+traversing the list during the deletion are finished, and the callback is triggered. The real Read Copy Update code is 
+a little more optimized than this, but this is the fundamental idea.
 
  struct object *cache_find(int id)
  {
