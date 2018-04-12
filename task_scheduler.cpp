@@ -1,6 +1,23 @@
 give a sequence of task like ABC mean 3 ifferent tasks and
 cold time.
 
+	
+int taskSchedule1(vector<int> &tasks, int k) {
+    if (task.empty())
+       return 0;
+   unordered_map<int,int> m;
+    int t = 0;
+    for (int task : tasks) {
+        //if we need to wait for the cooldown of the same task, just update the slots
+        if (m.count(task) && map[task] > t) 
+             t = m[task]; 
+        //update the time slot to the time when curr task can be done again
+        m[task] = t + 1 + k;
+        t++; //important!! update the used 1 slot of curr task
+    }
+    return t;
+}
+
 inptu string namespace output the the best -finishing sequeue.
 eg. input AAABBB, 2
 out AB_AB_AB
