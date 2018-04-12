@@ -25,8 +25,8 @@ public:
 			return T();
 
 		//Read data and advance the tail (we now have a free space)
-		auto val = buf[tail];
-		tail = (tail + 1) % size;
+		auto val = buf[head];
+		head = (head + 1) % size;
 		return val;
 	}
 
