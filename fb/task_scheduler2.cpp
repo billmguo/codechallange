@@ -7,21 +7,33 @@ using namespace std;
 int task_scheduler2(string task, int k) {
 	unordered_map<int, int> m;
 	int t = 0;
-	
-	for (int i = 0; i < task.size(); i++) {
-		int cur = task[i];
-		if (!m.count(cur)) {
-			m[cur] = t + k + 1;
-		} else {
-			int last = m[cur];
-			if (t >= last)
-				m[cur] = t;
-			else
-			    i--;
+	for (auto task:tasks) {
+		if (m.count(task)) && m[task] > t) {
+			t = m[task];
 		}
+		m[task] = t + k + 1;
 		t++;
 	}
 	return t;
+}
+
+string taskSchedule2(vector<int &tasks, int k) {
+	if (tasks.empty()) 
+		return "";
+	int t = 0;
+	string res;
+	for (auto task:tasks) {
+		if (m.count(task) && m[task] > t) {
+			int wait = m[task] - t;
+			while (wait-- > 0)
+				res +='_';
+			t = m[task];
+		}
+		m[task] = t + k + 1;
+		res += to_string(task);
+		t++;
+	}
+	return res;
 }
 int task_scheduler(string task, int k) {
 	unordered_map<int, int> m;
