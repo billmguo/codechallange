@@ -61,7 +61,8 @@ The disappearance of the gradient will cause the weight to update slowly and inc
  
 Way 1) 
  
-Mean subtraction is the most common form of preprocessing. It involves subtracting the mean across every individual feature in the data
+Mean subtraction is the most common form of preprocessing. It involves subtracting the mean across every individual feature in
+the data
 X -= np.mean(X, axis = 0)
  
 Normalization refers to normalizing the data dimensions so that they are of approximately the same scale. There are two common ways of achieving this normalization. One is to divide each dimension by its standard deviation, once it has been zero-centered: (X /= np.std(X, axis = 0))
