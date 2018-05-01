@@ -1,5 +1,12 @@
-In the convolutional neural network CNN, the size of the input layer corresponding to an element in a layer output is determined as a receptive field. For example, in the maxpooling layer, if its kenerl size is 2x2, each element in the output is the maximum of its corresponding input 2x2 region, so the receptive field size in this layer is 2. In fact, the size of the receptive field is determined by the kernel size and the stride size. The formula is: rfsize = f(out, stride, ksize) = (out - 1) * stride + ksize, where out refers to the upper level of the receptive field. size.
-When calculating, we generally assume that the size of the receptive field of the last layer is rfsize=1, and we push it backwards. Take VGG16 as an example:
+In the convolutional neural network CNN, the size of the input layer corresponding to an element in a layer output is determined
+as a receptive field. For example, in the maxpooling layer, if its kenerl size is 2x2, each element in the output is the maximum of
+its corresponding input 2x2 region, so the receptive field size in this layer is 2. In fact, the size of the receptive field is 
+determined by the kernel size and the stride size. The formula is: rfsize = f(out, stride, ksize) = (out - 1) * stride + ksize, 
+where out refers to the upper level of the receptive field. size.
+When calculating, we generally assume that the size of the receptive field of the last layer is rfsize=1, and we push it backwards. 
+Take VGG16 as an example:
+
+rfsize = f(out, stride, kszize) = (out - 1) * stride + ksize;
 
 Push backwards from the fully connected layer, rfsize of one element in the fully connected layer=1
 
