@@ -1,0 +1,128 @@
+
+1. Parallel
+ncnn uses openmp thread setting , the best is same as CPU core.
+here SDM845 is 8 core. but 4 thread got the best performance 
+the reason could be 4 big core run for the 4 thread. and context switch 
+or cache sync required more time when turn on 8 cores.
+
+the openmp assigned the thread to the cpu core sorted by max frequency, 
+so >4 thread will allocated to little cpu.
+also the performance of your application will degrade if the number of thread exceeds the number of processors
+8 thread
+
+simple enable #pragma omp parallel for
+
+NCNN libncnn.a matrxi multipication, image resize are all use
+neon asm to optimize 
+
+
+2. Neon and VFP
+https://github.com/thenifty/neon-guide/blob/master/README.md
+
+Neon vs VFP
+
+Neon is a SIMD (Single Instruction Multiple Data) accelerator processor as part of the ARM core. It means that during the execution of one instruction the same operation will occur on up to 16 data sets in parallel
+in ARMv8 Arch 64
+
+sixteen 128-bit quadword registers, Q0-Q15
+thirty-two 64-bit doubleword registers, D0-D31.
+The NEON D0-D31 registers are the same as the VFPv3 D0-D31 registers and each of the Q0-Q15 registers map onto a pair of D registers.
+
+
+VFP is a classic floating point hardware accelerator. It is not a parallel architecture like Neon. Basically it performs one operation on one set of inputs and returns one output. It's purpose is to speed up floating point calculations. It supports single and double precision floating point.
+
+AArch 64 use intrisnic , Arm v7 uses Neon ASM
+
+optimize the conv/deconv/eltwise/Matrix(1x1, 3x3, 5*5, 7*7)/bias/bn/depthwise/innerproduct/pool/scale
+
+3. Compiler Option
+Native Lib compilie option 
+cFlags "-fopenmp -O2 -fvisibility=hidden -fomit-frame-pointer -fstrict-aliasing -ffunction-sections -fdata-sections -ffast-math "
+                cppFlags "-fopenmp -O2 -fvisibility=hidden -fvisibility-inlines-hidden -fomit-frame-pointer -fstrict-aliasing -ffunction-sections -fdata-sections -ffast-math "
+                cppFlags ""
+                cppFlags "-std=c++11"
+                cppFlags "-frtti"
+                cppFlags "-fexceptions"
+
+4. Inplace option
+
+No need create new blob (top blob), operation in place (Conv + BN + Scale + Relu + Bias + softmax
+
+5. eltwise default (sum), can support dot product and max
+==============
+loop_count = 4
+num_threads = 8
+powersave = 0
+      squeezenet  min =   73.69  max =   76.95  avg =   75.11
+       mobilenet  min =   86.94  max =   89.79  avg =   88.55
+    mobilenet_v2  min =   97.52  max =  106.10  avg =  100.28
+      shufflenet  min =   55.80  max =   57.61  avg =   56.82
+       googlenet  min =  179.96  max =  182.84  avg =  181.19
+        resnet18  min =  140.61  max =  152.96  avg =  144.19
+  squeezenet-ssd  min =  120.85  max =  167.53  avg =  138.73
+            lcnn  min =  163.18  max =  173.09  avg =  169.96
+qc-mobilenet-ssd  min =  204.02  max =  206.23  avg =  205.43
+            qcnn  min =  163.29  max =  176.19  avg =  170.07
+
+1 thread
+=================
+./benchncnn 4 1 0
+loop_count = 4
+num_threads = 1
+powersave = 0
+      squeezenet  min =   89.66  max =   94.06  avg =   91.85
+       mobilenet  min =  128.54  max =  131.81  avg =  129.85
+    mobilenet_v2  min =  110.81  max =  111.80  avg =  111.28
+      shufflenet  min =   48.34  max =   51.60  avg =   49.53
+       googlenet  min =  303.60  max =  311.02  avg =  307.49
+        resnet18  min =  305.92  max =  309.22  avg =  307.86
+  squeezenet-ssd  min =  230.76  max =  234.23  avg =  232.36
+            lcnn  min =  392.22  max =  401.43  avg =  396.70
+qc-mobilenet-ssd  min =  363.39  max =  367.84  avg =  365.94
+            qcnn  min =  270.87  max =  278.80  avg =  275.76
+
+4 thread
+===============
+loop_count = 4
+num_threads = 4
+powersave = 0
+      squeezenet  min =   49.21  max =   51.86  avg =   50.39
+       mobilenet  min =   52.81  max =   54.76  avg =   53.72
+    mobilenet_v2  min =   57.01  max =   59.86  avg =   58.00
+      shufflenet  min =   34.27  max =   35.39  avg =   34.94
+       googlenet  min =  128.03  max =  132.06  avg =  129.58
+        resnet18  min =  129.21  max =  134.40  avg =  131.42
+  squeezenet-ssd  min =  123.59  max =  126.99  avg =  125.21
+            lcnn  min =  119.30  max =  123.06  avg =  120.71
+qc-mobilenet-ssd  min =  169.13  max =  173.44  avg =  170.90
+            qcnn  min =  145.87  max =  155.90  avg =  150.60
+2 thread
+==============
+loop_count = 4
+num_threads = 2
+powersave = 0
+      squeezenet  min =   64.12  max =   66.49  avg =   65.20
+       mobilenet  min =   80.53  max =   84.58  avg =   82.77
+    mobilenet_v2  min =   73.02  max =   76.27  avg =   74.88
+      shufflenet  min =   40.08  max =   42.12  avg =   40.79
+       googlenet  min =  177.38  max =  190.10  avg =  182.48
+        resnet18  min =  184.50  max =  189.48  avg =  187.47
+  squeezenet-ssd  min =  149.10  max =  157.85  avg =  153.05
+            lcnn  min =  221.79  max =  226.78  avg =  223.64
+qc-mobilenet-ssd  min =  233.67  max =  236.60  avg =  234.98
+            qcnn  min =  184.77  max =  190.38  avg =  187.93
+16 thread
+===========
+loop_count = 4
+num_threads = 16
+powersave = 0
+      squeezenet  min =  115.84  max =  121.11  avg =  117.98
+       mobilenet  min =   96.27  max =  143.16  avg =  119.69
+    mobilenet_v2  min =  127.93  max =  155.07  avg =  137.09
+      shufflenet  min =  110.15  max =  117.14  avg =  113.11
+       googlenet  min =  238.18  max =  262.53  avg =  254.42
+        resnet18  min =  194.81  max =  245.99  avg =  221.35
+  squeezenet-ssd  min =  287.79  max =  507.22  avg =  346.10
+            lcnn  min =  168.10  max =  194.69  avg =  177.96
+qc-mobilenet-ssd  min =  310.22  max =  356.85  avg =  335.86
+            qcnn  min =  276.69  max =  486.32  avg =  349.58
