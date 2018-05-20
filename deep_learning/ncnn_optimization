@@ -1,0 +1,86 @@
+1. Convolution
+    a. uses winograd. Channel >= 16 and input >=16 kernel size, stride_w stride_h = 1
+    b. optimize 1*1 (step 1, step 2) 2*2(step 1), 3*3 (step 1, step 2), 4*4(step 4), 5*5(step 1, step 2)
+    c. Dilation don't use winograd
+    d. NCNN still use Neon float operation
+    mostly way is like 128bit to parallel total_len / 128bit with ARM SIMD and execute the remain = total_len % 128 with c++
+    for (; nn>0; nn--)
+                {
+                    float32x4_t _sum0 = vld1q_f32(outptr0);
+                    float32x4_t _sum1 = vld1q_f32(outptr1);
+                    float32x4_t _sum0n = vld1q_f32(outptr0n);
+                    float32x4_t _sum1n = vld1q_f32(outptr1n);
+
+                    float32x4_t _r00 = vld1q_f32(r0);
+                    float32x4_t _r00n = vld1q_f32(r0 + 4);
+                    float32x4_t _r01 = vextq_f32(_r00, _r00n, 1);
+                    float32x4_t _r02 = vextq_f32(_r00, _r00n, 2);
+2. in-place support 
+
+    No need create new blob (top blob), operation in place (Conv + BN + Scale + Relu + Bias + softmax
+
+3. Neon and VFP
+https://github.com/thenifty/neon-guide/blob/master/README.md
+
+  Neon vs VFP
+
+    Neon is a SIMD (Single Instruction Multiple Data) accelerator processor as part of the ARM core. It means that during the execution of one instruction the same operation will occur on up to 16 data sets in parallel
+    in ARMv8 Arch 64
+
+    sixteen 128-bit quadword registers, Q0-Q15
+    thirty-two 64-bit doubleword registers, D0-D31.
+    The NEON D0-D31 registers are the same as the VFPv3 D0-D31 registers and each of the Q0-Q15 registers map onto a pair of D registers.
+
+
+    VFP is a classic floating point hardware accelerator. It is not a parallel architecture like Neon. Basically it performs one operation on one set of inputs and returns one output. It's purpose is to speed up floating point calculations. It supports single and double precision floating point.
+
+    AArch 64 use intrisnic , Arm v7 uses Neon ASM
+
+    optimize the conv/deconv/eltwise/Matrix(1x1, 3x3, 5*5, 7*7)/bias/bn/depthwise/innerproduct/pool/scale
+
+
+3. NCNN uses intrinsinc to optimize following layers. no Tanh support. 
+
+├── absval_arm.cpp
+├── absval_arm.h
+├── batchnorm_arm.cpp
+├── batchnorm_arm.h
+├── bias_arm.cpp
+├── bias_arm.h
+├── convolution_1x1.h
+├── convolution_2x2.h
+├── convolution_3x3.h
+├── convolution_4x4.h
+├── convolution_5x5.h
+├── convolution_7x7.h
+├── convolution_arm.cpp
+├── convolution_arm.h
+├── convolutiondepthwise_3x3.h
+├── convolutiondepthwise_arm.cpp
+├── convolutiondepthwise_arm.h
+├── deconvolution_3x3.h
+├── deconvolution_4x4.h
+├── deconvolution_arm.cpp
+├── deconvolution_arm.h
+├── deconvolutiondepthwise_arm.cpp
+├── deconvolutiondepthwise_arm.h
+├── eltwise_arm.cpp
+├── eltwise_arm.h
+├── innerproduct_arm.cpp
+├── innerproduct_arm.h
+├── lrn_arm.cpp
+├── lrn_arm.h
+├── neon_mathfun.h
+├── pooling_2x2.h
+├── pooling_3x3.h
+├── pooling_arm.cpp
+├── pooling_arm.h
+├── prelu_arm.cpp
+├── prelu_arm.h
+├── relu_arm.cpp
+├── relu_arm.h
+├── scale_arm.cpp
+├── scale_arm.h
+├── sigmoid_arm.cpp
+├── sigmoid_arm.h
+├── softmax_arm.cpp
