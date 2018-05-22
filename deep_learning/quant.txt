@@ -1,3 +1,14 @@
+Highlight 
+
+1.	Remove the outlier or long tail in quantization can help to improve accuracy. 
+2.	Since offline quantization need run inference once to quantize  the activation layer output, so need  input 50-100 label images and generate the right ranges
+3.	TF8 Linear quantization is same as SNPE basic mode
+4.	TF propose the fake quantization node , which is use INT8 for FW training , which is NOT used popularly now.  Most are still use linear quantization.
+5.	TF can optimize the graph with fold BN layering, which is also not used or other quantization implementation. 
+6.	Requantize node are not necessary if uses offline quantization tools, but if the layer is not quantized offline, the re-quantization node is added dynamically in inference. 
+7.	Quantization model can convert to full precision model which can bring lossy. 
+
+
 https://github.com/google/gemmlowp/blob/master/doc/quantization.md
 https://github.com/google/gemmlowp/blob/master/doc/quantization_example.cc
 https://petewarden.com/2017/06/22/what-ive-learned-about-neural-network-quantization/
@@ -48,3 +59,80 @@ and so requires careful handling if we want to use symmetric ranges and ensure z
 
 2.Asymmetric ranges are inconvenient, but may be necessary Constraining the min/max ranges so that the minimum is always the 
 negative of the maximum is very convenient for a lot of purposes because it avoids having to apply an offset to the operands to the matrix multiply
+
+
+Linear initialization linearly spaces the centroids between the [min, max] of the original weights. All the offline quantization are using this method. 
+1.	1.Quantizes weights and biases of layers that have them.  Other layer parameters are left untouched.  The DLC is populated with quantized weights and biases and the appropriate quantization meta-data corresponding to those weights. (min, max, delta, offset)
+a.	In the snpe-dlc-info, this is shown like: "weight encoding: min -0.181, max 0.232, delta 0.001622, offset -112, bitwidth 8"
+b.	
+2.	2. Predicts the activation min/max of each layer in the network by running the layers on the CPU runtime, and populates the DLC with that information.
+a.	In the snpe-dlc-info, this is shown like: "output encoding: min -12.41, max 11.03, delta 0.0919, offset -135, bitwidth 8"
+
+Example Quantize model 
+
+| 3   | conv_tanh_comp1_conv0             | convolutional | inp_1                             | conv_tanh_comp1_conv0             | 24x24x32 | output encoding: min -13.13, max 17.03, delta 0.1183, offset -111 bitwidth 8        |
+|     |                                   |               |                                   |                                   |          | weight encoding: min -0.1064, max 0.0745, delta 0.0007095, offset -150 bitwidth 8   |
+
+
+
+Detail implementation
+
+
+The following formulas show how we calculate the ﬁxed point encoding, given a xmin and xmax value. When using the following formulas, we are sure to get an 8-bit ﬁxed point oﬀset, and the ﬂoating point value 0 can be represented exactly. 
+xmin = min(xmin,0)
+xmax = max(xmax,0) 
+Step size: ∆ = (xmax−xmin)/255 
+Oﬀset: xoﬀset = round(xmin/ ∆ ) ∈ [−255,0]
+Minimum after quantization: x0min = ∆
+xoﬀsetMaximum after quantization: x0max = ∆·255 + xmin
+
+Given: The number distribution: X = {40,0,−30}. Calculate DLC ﬁelds: 
+We have xmin = −30 and xmax = 40.
+Step size: ∆ = (xmax−xmin)/255 = 0.2745.
+                 Oﬀset: xoﬀset = round(xmin/∆ ) = −109.
+                 The largest and smallest values we can represent are therefore: 
+                  min = ∆·xoﬀset = 0.2745 * -109 =  −29.9216
+                  max = ∆·255 + xmin = 40.0784. 
+To sum up, the DLC data looks as follows
+Min = -29.9216 max = 40.0784 delta= 0.2745 offset = -109 8 bw = 8
+
+quantized value = round(255 * (floating point value - encoding.min) / (encoding.max - encoding.min))
+
+
+Another example 
+              Inputs:
+              input values = [-1.8, -1.0, 0, 0.5]
+                            encoding-min is set to -1.8 and encoding-max to 0.5
+                            encoding range is 2.3, which is larger than the required 0.01
+                            encoding-min is adjusted to −1.803922 and encoding-max to 0.496078 to make zero exactly representable (255*(0 + 1.803922)/0.009020 = 51) 
+                            step size is 0.009020
+              Outputs:
+                            quantized values are [0, 89, 200, 255]
+
+Two mode, Enhanced mode can achieve the better accuracy . 
+Basic
+Basic (default) mode does quantization by simply looking at min/max, dividing the range into 255 steps, and then shifting to make 0 exact.  There is no algorithm applied to check for a better range to use.  Raw min/max are used.  This is for both weights and activation min/max.
+
+Enhanced
+Enhanced quantizer (--use_enhanced_quantizer) uses an algorithm to try to figure out a better min/max value to improve accuracy.   The algorithm may pick a different min/max value than the basic quantizer, and in some cases it may set the range such that some of the weights and/or activations cannot fall into that range.  However, this range does produce better accuracy than simply using the true min/max.
+
+This is useful for some models where the weights and/or activations may have "long tails". (Imagine a range with most values between -100 and 1000, but a few values much greater than 1000 or much less than -100.)  In some cases these long tails can be ignored and the range -100, 1000 can be used more effectively than the full range.  
+
+
+In both Baise and Enhanced mode
+ 
+
+1.Quantizes weights and biases of layers that have them.  Other layer parameters are left untouched.  The DLC is populated with quantized weights and biases and the appropriate quantization meta-data corresponding to those weights. (min, max, delta, offset)
+In the snpe-dlc-info, this is shown like: "weight encoding: min -0.181, max 0.232, delta 0.001622, offset -112, bitwidth 8"
+              2.Predicts the activation min/max of each layer in the network by running the layers on the CPU runtime(need inference once), and populates the DLC with that information. In the snpe-dlc-info, this is shown like: "output encoding: min -12.41, max 11.03, delta 0.0919, offset -135, bitwidth 8"
+
+For example, the following command will convert an Inception v3 DLC file into a quantized Inception v3 DLC file.
+
+snpe-dlc-quantize --input_dlc inception_v3.dlc --input_list image_file_list.txt
+                  --output_dlc inception_v3_quantized.dlc
+
+Input data for quantization
+To properly calculate the ranges for the quantization parameters, a representative set of input data needs to be used as input into snpe-dlc-quantize.
+Experimentation shows that providing 5-10 input data examples in the input_list for snpe-dlc-quantize is usually sufficient, and definitely practical for quick experiments. For more robust quantization results, we recommend providing 50-100 examples of representative input data for the given model use case, without using data from the training set. The representative input data set ideally should include all input data modalities which represent/produce all the output types/classes of the model, preferably with several input data examples per output type/class.
+
+
