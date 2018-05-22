@@ -1,5 +1,6 @@
 https://github.com/google/gemmlowp/blob/master/doc/quantization.md
 https://github.com/google/gemmlowp/blob/master/doc/quantization_example.cc
+https://petewarden.com/2017/06/22/what-ive-learned-about-neural-network-quantization/
 
 0. Exact zeroes are important
 The problem is that the real value of zero shows up a lot more often you’d expect in neural network calculations. Convolutions
