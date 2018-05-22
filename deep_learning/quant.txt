@@ -1,0 +1,49 @@
+https://github.com/google/gemmlowp/blob/master/doc/quantization.md
+https://github.com/google/gemmlowp/blob/master/doc/quantization_example.cc
+
+0. Exact zeroes are important
+The problem is that the real value of zero shows up a lot more often you’d expect in neural network calculations. Convolutions
+are padded with zeros at the edges when filters overlap, and the Relu activation function gates any negative numbers at zero. 
+This means that any error in the zero representation contributes disproportionately to overall results.
+The solution to this is to ensure that real values of zero are represented as exactly as possible in the quantized encoding
+
+
+  min = std::min(min, 0.f);
+  max = std::max(max, 0.f);
+
+  // the min and max quantized values, as floating-point values
+  const float qmin = 0;
+  const float qmax = 255;
+
+  // First determine the scale.
+  const double scale = (max - min) / (qmax - qmin);
+
+  // Zero-point computation.
+  // First the initial floating-point computation. The zero-point can be
+  // determined from solving an affine equation for any known pair
+  // (real value, corresponding quantized value).
+  // We know two such pairs: (rmin, qmin) and (rmax, qmax).
+  // Let's use the first one here.
+  const double initial_zero_point = qmin - min / scale;
+
+  // Now we need to nudge the zero point to be an integer
+  // (our zero points are integer, and this is motivated by the requirement
+  // to be able to represent the real value "0" exactly as a quantized value,
+  // which is required in multiple places, for example in Im2col with SAME
+  // padding).
+  
+  nudged_zero_point =
+        static_cast<std::uint8_t>(std::round(initial_zero_point));
+  
+ result.scale = scale;
+  result.zero_point = nudged_zero_point;
+
+
+min -0.1064, max 0.0745, scale 0.0007095, zero_point -150 bitwidth 8 
+
+
+1.Excluding -128 can be useful,his is inconvenient because there’s one more value on the negative side than the positive, 
+and so requires careful handling if we want to use symmetric ranges and ensure zero is exactly representable as encoded zero.
+
+2.Asymmetric ranges are inconvenient, but may be necessary Constraining the min/max ranges so that the minimum is always the 
+negative of the maximum is very convenient for a lot of purposes because it avoids having to apply an offset to the operands to the matrix multiply
