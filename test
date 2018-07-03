@@ -1,0 +1,75 @@
+ython build_all.py -b TZ.XF.5.0 CHIPSET=sdm670 --config=build_config_deploy.xml --recompile
+sudo mount //snowcone/builds718/PROD/BOOT.XF.2.1-00085-SDM710LZB-4 -t cifs -o username=mguo ./sdm670_bl
+
+readelf -s ./apps/bsp/trustzone/qsapps/faceid/build/XAWAANAA/faceid.elf|grep 137
+python ./ssg/securemsm/trustzone/debug/tzlogs/print_tz_log.py -t /local/mnt/workspace/tz_0529_tz670/ -l /tmp/8.txt  -o /tmp/81.txt
+
+./caffe2ncnn deploy_0413.lcnn.caffemodel lcnn.param lcnn.bin 256
+Convolution      conv1            1 1 data conv1 0=96 1=5 2=1 3=1 4=2 5=1 6=2400
+No need quantize,because: data_length < quantize_levelNo need quantize,because: data_length 
+
+adb push \\mguo-linux\workspace\tz_0529_tz670\trustzone_images\build\ms\bin\PIL_IMAGES\SPLITBINS_XAWAANAA\signed\faceid.b00  /firmware/image/faceid.b00 
+adb push \\mguo-linux\workspace\tz_0529_tz670\trustzone_images\build\ms\bin\PIL_IMAGES\SPLITBINS_XAWAANAA\signed\faceid.b01 /firmware/image/faceid.b01 
+adb push \\mguo-linux\workspace\tz_0529_tz670\trustzone_images\build\ms\bin\PIL_IMAGES\SPLITBINS_XAWAANAA\signed\faceid.b02 /firmware/image/faceid.b02 
+adb push \\mguo-linux\workspace\tz_0529_tz670\trustzone_images\build\ms\bin\PIL_IMAGES\SPLITBINS_XAWAANAA\signed\faceid.b03 /firmware/image/faceid.b03
+adb push \\mguo-linux\workspace\tz_0529_tz670\trustzone_images\build\ms\bin\PIL_IMAGES\SPLITBINS_XAWAANAA\signed\faceid.b04 /firmware/image/faceid.b04
+adb push \\mguo-linux\workspace\tz_0529_tz670\trustzone_images\build\ms\bin\PIL_IMAGES\SPLITBINS_XAWAANAA\signed\faceid.b05 /firmware/image/faceid.b05
+adb push \\mguo-linux\workspace\tz_0529_tz670\trustzone_images\build\ms\bin\PIL_IMAGES\SPLITBINS_XAWAANAA\signed\faceid.b06 /firmware/image/faceid.b06
+adb push \\mguo-linux\workspace\tz_0529_tz670\trustzone_images\build\ms\bin\PIL_IMAGES\SPLITBINS_XAWAANAA\signed\faceid.b07 /firmware/image/faceid.b07
+adb push \\mguo-linux\workspace\tz_0529_tz670\trustzone_images\build\ms\bin\PIL_IMAGES\SPLITBINS_XAWAANAA\signed\faceid.mdt /firmware/image/faceid.mdt
+
+adb push \\mguo-linux\workspace\tz_670\tz_build\build\ms\bin\PIL_IMAGES\SPLITBINS_XAWAANAA\signed\smplap64.*  /firmware/image
+l\faceid.*  /firmware/image
+ tools/build/scons/scripts/llvm.py
+
+ sudo mount //jerry/wonderland/users/baozhong/TZ_profiling  -t cifs -o username=squan ,
+
+
+========
+adb root
+adb disable-verity
+adb reboot
+adb remount
+adb shell
+mount -o rw,remount /system 
+adb remount 
+
+=====================
+
+67fdc1e3-1666-449f-a959-b9bcd1ccda04 (UUID)
+
+"KBA-171010233337
+
+mount -o rw,remount /firmware 
+
+mount -o rw,remount /vendor
+
+mount -o rw,remount /system 
+
+cd /vendor/bin
+
+"/local/mnt/workspace/android-ndk-r17/sources/cxx-stl/llvm-libc++/libs/arm64-v8a/libc++_static.a" "/local/mnt/workspace/android-ndk-r17/sources/cxx-stl/llvm-libc++/libs/arm64-v8a/libc++abi.a"
+
+
+adb shell
+cd sys/kernel/debug/tzdbg
+cat qsee_log
+
+qseecom_sample_client v faceid 0 1
+qseecom_sample_client v cvfaceid 0 1
+
+0x8000
+
+qseecom_sample_client v faceid 0x100 1 
+
+https://aggregator.qualcomm.com/Views/Pages/KnowledgeBaseDashboard.aspx?dcn=KBA-171010233337&rev=2
+
+/local/mnt/workspace/tz_0529_tz670/trustzone_images/apps/securemsm/trustzone/qsapps/biometrics/faceid
+
+7void tz_app_cmd_handler(void* cmd, uint32 cmdlen,
+428                        void* rsp, uint32 rsplen)
+
+qseecom_sample_client v smplap64 1 1 
+
+upgrade_net_proto_text [old prototxt] [new prototxt]
+upgrade_net_proto_binary [old caffemodel] [new caffemodel]
