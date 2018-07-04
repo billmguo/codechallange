@@ -1,0 +1,31 @@
+python train_image_classifier.py --train_dir=/home/ubuntu/Train_dir_log\ 
+--dataset_name=flowers --dataset_split_name=trai --dataset_dir=/home/ubuntu/DATA_SET\ 
+--model_name=mobilenet_v1
+
+python export_inference_graph.py --alsologtostderr --model_name=mobilenet_v1 --image_size=224 \ 
+--output_file=/home/ubuntu/export_grph/mobilenet_v1_224.pb
+
+python /home/ubuntu/tensorflow/tensorflow/python/tools/freeze_graph.py \ 
+--input_graph=/home/ubuntu/export_grph/mobilenet_v1_224.pb \ 
+--input_checkpoint=/home/ubuntu/Train_dir_log/model.ckpt-25439 \ 
+--input_binary=true \ 
+--output_graph=/home/ubuntu/export_grph/frozen_mobilenet.pb \ 
+--output_node_names=MobilenetV1/Predictions/Reshape_1
+
+python $TENSORFLOW_HOME/lib/python2.7/site-packages/tensorflow/python/tools/optimize_for_inference.py \ 
+--input ./tensorflow/mobilenet_v1_0.75_224.pb \ 
+--output ./tensorflow/mobilenet_v1_0.75_224.opt.pb \ 
+--input_names input \ 
+--output_names final_result
+
+snpe-tensorflow-to-dlc \ 
+--graph ./tensorflow/mobilenet_v1_0.75_224.opt.pb \ 
+--input_dim input 224,224,3 \ 
+--out_node final_result \ 
+--dlc ./dlc/mobilenet_v1_0.75_224.dlc \ 
+--allow_unconsumed_nodes
+
+snpe-dlc-quantize \ 
+--input_dlc ./dlc/mobilenet_v1_0.75_224.dlc \ 
+--input_list ./data/raw_list.txt \ 
+--output_dlc ./dlc/mobilenet_v1_0.75_224_quantized.dlc
