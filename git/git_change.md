@@ -14,8 +14,7 @@ $ git commit -m “Initial commit”
 $ git push (pushes commits only to “new_branch”)
 
 5) When job is finished on this branch, merge with “master” branch:
-
-$ git merge master
-$ git checkout master (goes to master branch)
-$ git merge development (merges files in localhost. Master shouldn’t have any  commits ahead, otherwise there will be a need for pull and merging code by hands!)
-$ git push (pushes all “new_branch” commits to both branches - “master” and “new_branch”)
+  $ git merge master
+  $ git checkout master (goes to master branch)
+  $ git merge development (merges files in localhost. Master shouldn’t have any  commits ahead, otherwise there will be a need for pull and merging code by hands!)
+  $ git push (pushes all “new_branch” commits to both branches - “master” and “new_branch”)
