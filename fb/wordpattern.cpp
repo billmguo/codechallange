@@ -23,6 +23,28 @@ public:
 };
 
 /*Stirng mulitply*/
+
+string multiply(string num1, string num2) {
+	string t = "";
+	int m = num1.size(), n = num2.size();
+	vector<int> res(m + n);
+	for (int i = m - 1; i >= 0; i--) {
+		for (int j = n - 1; j >= 0; j--) {
+			int a = num1[i] - '0';
+			int b = num2[j] - '0';
+			int p1 = i + j, p2 = i + j + 1;
+			int sum = a * b  + res[p2];
+			res[p1] += sum/10;
+			res[p2] = sum%10;
+		}
+	}
+	for (auto val:vals) {
+		if (!t.empty() || val!=0)
+			t.push_back(val + '0');
+	}
+	return res.empty()?"0":res;
+}
+
 class Solution {
 public:
     string multiply(string num1, string num2) {
