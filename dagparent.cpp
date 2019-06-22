@@ -39,3 +39,7 @@ class solution{
     }
     return lca ; 
 }
+
+    http://www.gghh.name/dibtp/2014/02/25/how-does-mercurial-select-the-greatest-common-ancestor.html
+    
+    Need find the parent list (depth, parent_node} 
