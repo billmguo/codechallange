@@ -144,3 +144,86 @@ public:
         return A;
     }
 };
+
+Given a binary tree, return the vertical order traversal of its nodes values.
+
+For each node at position (X, Y), its left and right children respectively will be at positions (X-1, Y-1) and (X+1, Y-1).
+
+Running a vertical line from X = -infinity to X = +infinity, whenever the vertical line touches some nodes, we report the values of the nodes in order from top to bottom (decreasing Y coordinates).
+
+If two nodes have the same position, then the value of the node that is reported first is the value that is smaller.
+
+Return an list of non-empty reports in order of X coordinate.  Every report will have a list of values of nodes
+
+class Solution {
+public:
+    vector<vector<int>> verticalTraversal(TreeNode* root) {
+        vector<vector<int>> res;
+        map<int, map<int, set<int>>> m;
+        dfs(root,m,0,0);
+        
+        for (auto a:m) {
+            vector<int> out;
+            for (auto h : a.second) {
+                copy(h.second.begin(), h.second.end(), back_inserter(out));
+            }
+            res.push_back(out);
+        }
+            
+      
+        return res;
+    }
+    void dfs(TreeNode*root, map<int, map<int,set<int>>> &m, int x, int y) {
+        if (root == NULL)
+            return;
+        m[x][y].insert(root->val);
+        if (root->left)
+            dfs(root->left, m, x-1, y+1);
+        if (root->right)
+            dfs(root->right,m, x + 1,y + 1);        
+    }
+};
+
+Given an array of integers A sorted in non-decreasing order, 
+return an array of the squares of each number, also in sorted non-decreasing order.
+
+
+
+class Solution {
+public:
+    vector<int> sortedSquares(vector<int>& A) {
+        sort(A.begin(), A.end(), [](int a, int b) {return abs(a) < abs(b);});
+        vector<int> res;
+        for (auto a:A) {
+            res.push_back(a*a);
+        }
+        return res;
+    }
+};
+
+
+Given the root node of a binary search tree, return the sum of values of all nodes with value between L and R (inclusive).
+
+The binary search tree is guaranteed to have unique values.
+
+int rangesumBST(TreeNode *root, int L, int R) {
+    if (root == NULL)
+        return 0;
+    if (root->val > L)
+        sum += rangesumBST(root->left, L, R);
+    if (root->val < R)
+        sum += rangesumBST(root->right, L, R);
+    if (root->val >= L && root->val <= R)
+        sum += root->val;
+    return sum;
+}
+
+int rangesumBST(TreeNode *root, int L, int R) {
+    if (root == NULL)
+        return 0;
+    if (root->val < L)
+        return rangesumBST(root->right, L, R);
+    if (root->val > R)
+        return rangesumBST(root->left, L, R);
+    return root->val + rangesumBST(root->left, L, R) + rangesumBST(root->right, L, R);
+}
