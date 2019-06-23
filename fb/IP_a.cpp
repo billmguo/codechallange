@@ -1,3 +1,133 @@
+Return any binary tree that matches the given preorder and postorder traversals.
+
+Values in the traversals pre and post are distinct positive integers.
+
+ 
+
+Example 1:
+
+Input: pre = [1,2,4,5,3,6,7], post = [4,5,2,6,7,3,1]
+Output: [1,2,3,4,5,6,7]
+
+class Solution {
+public:
+    TreeNode* constructFromPrePost(vector<int>& pre, vector<int>& post) {
+        vector<TreeNode*> s;
+        s.push_back(new TreeNode(pre[0]));
+        for (int i = 1, j = 0; i < pre.size(); i++) {
+            while (s.back()->val == post[j]) {
+                s.pop_back();
+                j++;
+            }
+            TreeNode *node = new TreeNode(pre[i]);
+            if (s.back()->left == NULL)
+                s.back()->left = node;
+            else
+                s.back()->right = node;
+            s.push_back(node);
+        }
+        return s[0];
+    }
+};
+
+The basic idea is to find the left subtree and the right subtree.
+
+The root node must be the first element of the pre sequence.
+The root node must be the last element of the post sequence.
+The left subtree and the right subtree must be consecutive in both of the sequences.
+pre: 1 | 2 4 5 | 3 6 7
+post:  | 4 5 2 | 6 7 3 | 1
+Start scanning from pre[1] and post[0]. Once they contains the same set of numbers, we can truncate it to be two parts. One is the left subtree, another is the right subtree.
+
+class Solution {
+public:
+    TreeNode* constuctFromRange(vector<int>& pre, vector<int>& post, int s1, int e1, int s2, int e2) {
+        if (s1 > e1 || s2 > e2) return NULL;
+        TreeNode *root = new TreeNode(pre[s1]);
+        if (s1 == e1) return root;
+        int m1 = s1 + 1, m2 = s2;
+        int set1 = 0, set2 = 0;
+        while (set1 == 0 || set1 != set2) {
+            set1 = set1 | (1 << pre[m1++]);
+            set2 = set2 | (1 << post[m2++]);
+        }
+        root->left = constuctFromRange(pre, post, s1 + 1, m1 - 1, s2, m2 - 1);
+        root->right = constuctFromRange(pre, post, m1, e1, m2, e2);
+        return root;
+    }
+    
+    TreeNode* constructFromPrePost(vector<int>& pre, vector<int>& post) {
+        return constuctFromRange(pre, post, 0, pre.size() - 1, 0, post.size() - 1);
+    }
+};
+
+
+TreeNode *node = new TreeNode(pre[s[0]]);
+vec.push_back(node);
+for (int i = 1; i < pre.size(); i++) {
+	TreeNode *node = new TreeNode(pre[i]);
+	while(!vec.empty() and vec.back() == post[j]) {
+		j++;
+		vec.pop_back();
+	}
+	if (vec.back()->left == NULL)
+		vec.back()->left = node;
+	else
+		vec.back()->right = node;
+	vec.push_back(node);
+}
+return vec[0];
+
+
+Return the length of the shortest, non-empty, contiguous subarray of A with sum at least K.
+
+If there is no non-empty subarray with sum at least K, return -1.
+
+
+class Solution {
+public:
+    int shortestSubarray(vector<int>& A, int K) {
+        int N = A.size(), res = N + 1;
+        vector<int> B(N + 1, 0);
+        for (int i = 0; i < N; i++) 
+            B[i + 1] = B[i] + A[i];
+        deque<int> d;
+        for (int i = 0; i < N + 1; i++) {
+            while (d.size() > 0 && B[i] - B[d.front()] >= K) {
+                res = min(res, i - d.front());
+                d.pop_front();
+            }
+            while (d.size() > 0 && B[i] <= B[d.back()])
+                d.pop_back();
+            d.push_back(i);
+        }
+        return res <= N ? res : -1; 
+    }
+};
+
+
+class Solution {
+public:
+    int shortestSubarray(vector<int>& A, int K) {
+        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int,int>> > pq;
+        int sum = 0;
+        int ans = INT_MAX;
+        for( int i = 0; i<A.size(); i++){
+            sum += A[i];
+            if( sum >= K ){
+                ans = min(ans, i+1);
+            }
+            while( pq.size() && sum - pq.top().first >= K ){
+                auto &p = pq.top();
+                ans = min(ans, i-p.second);
+                pq.pop();
+            }
+            pq.push({sum, i});
+        }
+        return ans == INT_MAX?-1:ans;
+    }
+};
+
 Given a binary tree rooted at root, the depth of each node is the shortest distance to the root.
 
 A node is deepest if it has the largest depth possible among any node in the entire tree.
