@@ -317,6 +317,153 @@ public:
         return res;
     }
 };
+Given a list of unique words. Find all pairs of distinct indices (i, j) in the given list, so that the concatenation of the two words, i.e. words[i] + words[j] is a palindrome.
 
+Example 1:
+Given words = ["bat", "tab", "cat"]
+Return [[0, 1], [1, 0]]
+The palindromes are ["battab", "tabbat"]
+
+Example 2:
+Given words = ["abcd", "dcba", "lls", "s", "sssll"]
+Return [[0, 1], [1, 0], [3, 2], [2, 4]]
+The palindromes are ["dcbaabcd", "abcddcba", "slls", "llssssll"]
+
+class Solution {
+public:
+    vector<vector<int>> palindromePairs(vector<string>& words) {
+        vector<vector<int>> res;
+        unordered_map<string, int> m;
+        set<int> s;
+        for (int i = 0; i < words.size(); ++i) {
+            m[words[i]] = i;
+            s.insert(words[i].size());
+        }
+        for (int i = 0; i < words.size(); ++i) {
+            string t = words[i];
+            int len = t.size();
+            reverse(t.begin(), t.end());
+            if (m.count(t) && m[t] != i) {
+                res.push_back({i, m[t]});
+            }
+            auto a = s.find(len);
+            for (auto it = s.begin(); it != a; ++it) {
+                int d = *it;
+                if (isValid(t, 0, len - d - 1) && m.count(t.substr(len - d))) {
+                    res.push_back({i, m[t.substr(len - d)]});
+                }
+                if (isValid(t, d, len - 1) && m.count(t.substr(0, d))) {
+                    res.push_back({m[t.substr(0, d)], i});
+                }
+            }
+        }
+        return res;
+    }
+    bool isValid(string t, int left, int right) {
+        while (left < right) {
+            if (t[left++] != t[right--]) return false;
+        }
+        return true;
+    }
+};
+
+/*
+Given a robot cleaner in a room modeled as a grid.
+
+Each cell in the grid can be empty or blocked.
+
+The robot cleaner with 4 given APIs can move forward, turn left or turn right. Each turn it made is 90 degrees.
+
+When it tries to move into a blocked cell, its bumper sensor detects the obstacle and it stays on the current cell.
+
+Design an algorithm to clean the entire room using only the 4 given APIs shown below.
+
+interface Robot {
+  // returns true if next cell is open and robot moves into the cell.
+  // returns false if next cell is obstacle and robot stays on the current cell.
+  boolean move();
+
+  // Robot will stay on the same cell after calling turnLeft/turnRight.
+  // Each turn will be 90 degrees.
+  void turnLeft();
+  void turnRight();
+
+  // Clean the current cell.
+  void clean();
+}
+*/
+
+class Solution {
+public:
+    vector<vector<int>> dirs{{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+    void cleanRoom(Robot& robot) {
+        unordered_set<string> visited;
+        helper(robot, 0, 0, 0, visited);
+    }
+    void helper(Robot& robot, int x, int y, int dir, unordered_set<string>& visited) {
+        robot.clean();
+        visited.insert(to_string(x) + "-" + to_string(y));
+        for (int i = 0; i < 4; ++i) {
+            int cur = (i + dir) % 4, newX = x + dirs[cur][0], newY = y + dirs[cur][1];
+            if (!visited.count(to_string(newX) + "-" + to_string(newY)) && robot.move()) {
+                helper(robot, newX, newY, cur, visited);
+                robot.turnRight();
+                robot.turnRight();
+                robot.move();
+                robot.turnLeft();
+                robot.turnLeft();
+            }
+            robot.turnRight();
+        }
+    }
+};
+
+Given a binary tree, return all root-to-leaf paths.
+
+For example, given the following binary tree:
+
+ 
+
+   1
+ /   \
+2     3
+ \
+  5
+All root-to-leaf paths are:
+
+["1->2->5", "1->3"]
+class Solution {
+public:
+    vector<string> binaryTreePaths(TreeNode* root) {
+        vector<string> res;
+        if (root) helper(root, "", res);
+        return res;
+    }
+    void helper(TreeNode* node, string out, vector<string>& res) {
+        if (!node->left && !node->right) 
+        	res.push_back(out + to_string(node->val));
+        if (node->left)
+        	 helper(node->left, out + to_string(node->val) + "->", res);
+        if (node->right) 
+        	helper(node->right, out + to_string(node->val) + "->", res);
+    }
+};
+
+Given an unsorted array return whether an increasing subsequence of length 3 exists or not in the array.
+
+Formally the function should:
+
+class Solution {
+public:
+    bool increasingTriplet(vector<int>& nums) {
+        int m1 = INT_MAX, m2 = INT_MAX;
+        for (auto a : nums) {
+            if (m1 >= a) m1 = a;
+            else if (m2 >= a) m2 = a;
+            else return true;
+        }
+        return false;
+    }
+};
 
 
