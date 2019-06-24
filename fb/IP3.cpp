@@ -1,3 +1,58 @@
+/*sub two string*/
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Solution {
+public:
+	void removefirstzero(string &str) {
+		while(*str.begin() == '0')
+			str.erase(str.begin());
+	}
+    bool isSmaller(string str1, string str2) { 
+    // Calculate lengths of both string 
+	 int n1 = str1.length(), n2 = str2.length(); 
+	 if (n1 < n2)  return true; 
+     if (n2 > n1) return false; 
+  	 for (int i=0; i<n1; i++)  { 
+	        if (str1[i] < str2[i]) 
+	            return true; 
+	        else if (str1[i] > str2[i]) 
+	            return false; 
+	  } 
+	  return false; 
+    } 
+    string subStrings(string num1, string num2) {
+        string res = "";
+        removefirstzero(num1);
+        removefirstzero(num2);
+        if (isSmaller(num1, num2))
+        	swap(num1, num2);
+        int m = num1.size(), n = num2.size(), i = m - 1, j = n - 1, carry = 0;
+        while (i >= 0 || j >= 0) {
+            int a = i >= 0 ? num1[i--] - '0' : 0;
+            int b = j >= 0 ? num2[j--] - '0' : 0;
+            int sum = a - b - carry;
+            if (sum < 0) {
+            	sum = sum + 10;
+            	carry = 1;
+            } else {
+            	carry = 0;
+            }
+            res.insert(res.begin(), sum + '0');
+        }
+        while(*res.begin() == '0')
+        	res.erase(res.begin());
+        return res;
+    }
+};
+int main() {
+	// your code goes here
+	Solution sl;
+	string res = sl.subStrings("0099","88");
+	cout<<res<<endl;
+	return 0;
+}
 class Solution {
 public:
     int findComplement(int num) {
