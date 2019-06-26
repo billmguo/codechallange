@@ -1,3 +1,19 @@
+class Solution {
+public:
+    int maxSumAfterPartitioning(vector<int>& A, int K) {
+        int n = A.size();
+        vector<int> dp(n + 1, 0);
+        for(int i=1; i <= n; i++) {
+            int curm=0;
+            for(int j = i-1; j >= 0 &&j >= i-K ; j--) {
+                curm = max(curm, A[j]);
+                dp[i] = max(dp[i], dp[j] + curm * (i - j));
+            }
+        }
+        return dp.back();
+    }
+};
+
 // Forward declaration of isBadVersion API.
 bool isBadVersion(int version);
 
