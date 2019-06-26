@@ -1,3 +1,43 @@
+back tracer stack comparing
+class Solution {
+    public boolean backspaceCompare(String S, String T) {
+        if (S == null || T == null) return S == T;
+        int m = S.length(), n = T.length();
+        int i = m - 1, j = n - 1;
+        int cnt1 = 0, cnt2 = 0;//number of '#';
+        while (i >= 0 || j >= 0) {
+            while (i >= 0 && (S.charAt(i) == '#' || cnt1 > 0)) {
+                if (S.charAt(i) == '#') cnt1++;
+                else cnt1--;
+                i--;
+            }
+            while (j >= 0 && (T.charAt(j) == '#' || cnt2 > 0)) {
+                if (T.charAt(j) == '#') cnt2++;
+                else cnt2--;
+                j--;
+            }
+            if (i >= 0 && j >= 0 && S.charAt(i) == T.charAt(j)) {
+                i--;
+                j--;
+            } else {
+                return i == -1 && j == -1;
+            }
+        }
+        return true;
+    }
+}
+class Solution {
+public:
+    bool backspaceCompare(string S, string T) {
+        string a = "", b = "";
+        for(auto c: S) 
+            c == '#' ? a.size() > 0 ? a.pop_back() : void() : a.push_back(c);
+        for(auto c: T) c == '#' ? b.size() > 0 ? b.pop_back() : void() : b.push_back(c);
+        return a == b;
+    }
+};
+
+
 Insert into a Cyclic Sorted List
 
 class Solution {
