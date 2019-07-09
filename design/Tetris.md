@@ -945,10 +945,3 @@ The score is displayed in a label which is located at the bottom of the board.
 Board board = new Board(this);
 add(board);
 board.start();
-The board is created and added to the container. The start() method starts the Tetris game.
-
-Tetris
-Figure: Tetris
-This was the Tetris game.
-
-Home Contents Top of Page Previous Next ZetCode last modified October 29, 2018 © 2007 - 2019 Jan Bodnar Follow on Facebook
