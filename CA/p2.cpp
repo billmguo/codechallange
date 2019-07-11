@@ -310,3 +310,57 @@ public:
         return res;
     }
 };
+
+[LeetCode] 24 Game 二十四点游戏
+ 
+
+You have 4 cards each containing a number from 1 to 9. You need to judge whether they could operated through *, /, +, -, (, )to get the value of 24.
+
+Example 1:
+
+Input: [4, 1, 8, 7]
+Output: True
+Explanation: (8-4) * (7-1) = 24
+ 
+
+Example 2:
+
+Input: [1, 2, 1, 2]
+Output: False
+
+
+
+class Solution {
+public:
+    bool judgePoint24(vector<int>& nums) {
+        bool res = false;
+        double eps = 0.001;
+        vector<double> arr(nums.begin(), nums.end());
+        helper(arr, eps, res);
+        return res;
+    }
+    void helper(vector<double>& nums, double eps, bool& res) {
+        if (res) return;
+        if (nums.size() == 1) {
+            if (abs(nums[0] - 24) < eps) res = true;
+            return;
+        }
+        for (int i = 0; i < nums.size(); ++i) {
+            for (int j = 0; j < i; ++j) {
+                double p = nums[i], q = nums[j];
+                vector<double> t{p + q, p - q, q - p, p * q};
+                if (p > eps) t.push_back(q / p);
+                if (q > eps) t.push_back(p / q);
+                nums.erase(nums.begin() + i);
+                nums.erase(nums.begin() + j);
+                for (double d : t) {
+                    nums.push_back(d);
+                    helper(nums, eps, res);
+                    nums.pop_back();
+                }
+                nums.insert(nums.begin() + j, q);
+                nums.insert(nums.begin() + i, p);
+            }
+        }
+    }
+};
