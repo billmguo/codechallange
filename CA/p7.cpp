@@ -25,3 +25,18 @@ DoublyLinkedListNode* sortedInsert(DoublyLinkedListNode* head, int data) {
         prev->next = node;
         return dummy->next;
 }
+DoublyLinkedListNode* reverse(DoublyLinkedListNode* head) {
+    if (head == NULL){
+        return NULL;
+    }
+    DoublyLinkedListNode *cur = head;
+    while (cur != NULL) {
+        DoublyLinkedListNode *node = cur->prev;
+        cur->prev = cur->next;
+        cur->next = node;
+        if (cur ->prev == NULL)
+            return cur;
+        cur = cur->prev;
+    }
+    return cur;
+}
