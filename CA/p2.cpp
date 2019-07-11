@@ -261,3 +261,52 @@ public:
         return res;
     }
 };
+
+[LeetCode] Equal Tree Partition 划分等价树
+
+class Solution {
+public:
+    bool checkEqualTree(TreeNode* root) {
+        unordered_map<int, int> m;
+        int sum = helper(root, m);
+        if (sum == 0) return m[0] > 1;
+        return sum % 2 == 0 && m.count(sum / 2);
+    }
+    int helper(TreeNode* node, unordered_map<int, int>& m) {
+        if (!node) return 0;
+        int cur = node->val + helper(node->left, m) + helper(node->right, m);
+        ++m[cur];
+        return cur;
+    }
+};
+
+Meeting room II
+
+class Solution {
+public:
+    int minMeetingRooms(vector<Interval>& intervals) {
+        sort(intervals.begin(), intervals.end(), [](const Interval &a, const Interval &b){return a.start < b.start;});
+        priority_queue<int, vector<int>, greater<int>> q;
+        for (auto a : intervals) {
+            if (!q.empty() && q.top() <= a.start) q.pop();
+            q.push(a.end);
+        }
+        return q.size();
+    }
+};
+
+class Solution {
+public:
+    int minMeetingRooms(vector<Interval>& intervals) {
+        map<int, int> m;
+        for (auto a : intervals) {
+            ++m[a.start];
+            --m[a.end];
+        }
+        int rooms = 0, res = 0;
+        for (auto it : m) {
+            res = max(res, rooms += it.second);
+        }
+        return res;
+    }
+};
