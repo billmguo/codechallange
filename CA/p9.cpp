@@ -1,3 +1,17 @@
+maxium increase in the tree
+class Solution {
+public:
+    int longestConsecutive(TreeNode* root) {
+        return helper(root, NULL, 0);
+    }
+    int helper(TreeNode *root, TreeNode *p, int res) {
+        if (!root) return res;
+        res = (p && root->val == p->val + 1) ? res + 1 : 1;
+        return max(res, max(helper(root->left, root, res), helper(root->right, root, res)));
+    }
+};
+
+
 [LeetCode] 90. Subsets II 子集合之二
  
 
