@@ -56,6 +56,30 @@ public:
     }
 };
 
+    vector<string> findItinerary(vector<pair<string, string>> tickets) {
+        vector<string> res;
+        stack<string> st{{"JFK"}};
+        unordered_map<string, multiset<string>> m;
+        for (auto t : tickets) {
+            m[t.first].insert(t.second);
+        }
+     
+        while (!st.empty()) {
+            string t = st.top(); 
+            if (m[t].empty()) {
+                res.insert(res.begin(), t);
+                for (auto a:res)
+                	cout<<a<<" ";
+                cout<<endl;
+                st.pop();
+            } else {
+                st.push(*m[t].begin());
+                m[t].erase(m[t].begin());
+            }
+        }
+        return res;
+    }
+};
 [LeetCode] Product of Array Except Self 除本身之外的数组之积
  
 Given an array of n integers where n > 1, nums, return an array output such that output[i] is equal to the product of all the elements of nums except nums[i].
