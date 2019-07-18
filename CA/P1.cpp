@@ -11,6 +11,29 @@ Example 1:
 tickets = [["MUC", "LHR"], ["JFK", "MUC"], ["SFO", "SJC"], ["LHR", "SFO"]]
 Return ["JFK", "MUC", "LHR", "SFO", "SJC"].
 
+    vector<string> findItinerary(vector<pair<string, string>> tickets) {
+        vector<string> res;
+        stack<string> st{{"JFK"}};
+        unordered_map<string, multiset<string>> m;
+        for (auto t : tickets) {
+            m[t.first].insert(t.second);
+        }
+        while (!st.empty()) {
+            string t = st.top(); 
+            if (m[t].empty()) {
+                res.insert(res.begin(), t);
+                for (auto a:res)
+                	cout<<a<<" ";
+                cout<<endl;
+                st.pop();
+            } else {
+                st.push(*m[t].begin());
+                m[t].erase(m[t].begin());
+            }
+        }
+        return res;
+    }
+};
 
 class Solution {
 public:
