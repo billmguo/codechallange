@@ -1,4 +1,6 @@
-Circual dequeue 
+#include <iostream>
+#include <vector>
+using namespace std;
 
 class MyCircularDeque {
 public:
@@ -66,29 +68,14 @@ private:
     vector<int> data;
     int size, head, tail, cnt;
 };
-
-[LeetCode] Design Circular Queue 设计环形队列
-
-class Circualqueue{
-	int size;
-	int head, tail, cnt;
-public:
-	Circualqueue(int k) {
-		size = k; head = k - 1;
-		tail = 0; cnt = 0;
-		data.resize(k);
-	}
-}
 class MyCircularQueue {
 public:
     MyCircularQueue(int k) {
-        size = k; head = k - 1;
-        tail = 0; cnt = 0;
+        size = k; head = k - 1; tail = 0; cnt = 0;
         data.resize(k);
     }
     bool enQueue(int value) {
         if (isFull()) return false;
-        data
         data[tail] = value;
         tail = (tail + 1) % size;
         ++cnt;
@@ -97,6 +84,7 @@ public:
     bool deQueue() {
         if (isEmpty()) return false;
         head = (head + 1) % size;
+        cout<<"dequeue"<<head;
         --cnt;
         return true;
     }
@@ -117,3 +105,30 @@ private:
     vector<int> data;
     int size, cnt, head, tail;
 };
+int main() {
+	// your code goes here
+	MyCircularDeque q(3);
+	/*
+	cout<<q.enQueue(1);  // return true
+	cout<<q.enQueue(2);
+	cout<<q.enQueue(3);  // return true
+	cout<< q.enQueue(4);  // return false, the queue is full
+	cout<<q.Rear();  // return 3
+	cout<<q.isFull();  // return true
+	cout<<q.deQueue();  // return true
+	cout<<q.Front();  // return true
+    cout<<q.Rear();  // return 4*/
+    
+    MyCircularDeque circularDeque(3); // set the size to be 3
+	cout << circularDeque.insertLast(1);			// return true
+	cout<< circularDeque.insertLast(2);			// return true
+	cout<< circularDeque.insertFront(3);			// return true
+	cout<< circularDeque.insertFront(4);			// return false, the queue is full
+	cout<< circularDeque.getRear();  			// return 2
+	cout<< circularDeque.isFull();				// return true
+    cout<<circularDeque.deleteLast();			// return true
+    cout<<endl;
+	cout<<circularDeque.getRear();			// return true
+	cout<<circularDeque.getFront();			// return 4
+	return 0;
+}
