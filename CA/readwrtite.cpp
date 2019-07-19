@@ -1,4 +1,12 @@
+It all depends on how the list will be used. Just a few examples:
 
+Reads are more common than writes - use separate read/write locks.
+Average list is short - use copy-on-write array instead of linked list.
+Average list is long - use more efficient search method.
+Lots of threads access list - use mutex instead of spinlock to avoid wasted cycles.
+Lots of elements is added/removed in bulk - use external lock.
+
+	
 int writers; // Number writer threads that want to enter the critical section (some or all of these may be blocked)
 int writing; // Number of threads that are actually writing inside the C.S. (can only be zero or one)
 int reading; // Number of threads that are actually reading inside the C.S.
