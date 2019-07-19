@@ -1,4 +1,40 @@
 
+int writers; // Number writer threads that want to enter the critical section (some or all of these may be blocked)
+int writing; // Number of threads that are actually writing inside the C.S. (can only be zero or one)
+int reading; // Number of threads that are actually reading inside the C.S.
+// if writing !=0 then reading must be zero (and vice versa)
+
+reader() {
+    lock(&m)
+    while (writers)
+        cond_wait(&turn, &m)
+    // No need to wait while(writing here) because we can only exit the above loop
+    // when writing is zero
+    reading++
+    unlock(&m)
+
+  // perform reading here
+
+    lock(&m)
+    reading--
+    cond_broadcast(&turn)
+    unlock(&m)
+}
+
+writer() {
+    lock(&m)  
+    writers++  
+    while (reading || writing)   
+        cond_wait(&turn, &m)  
+    writing++  
+    unlock(&m)  
+    // perform writing here  
+    lock(&m)  
+    writing--  
+    writers--  
+    cond_broadcast(&turn)  
+    unlock(&m)  
+}
 #include <condition_variable>
 #include <mutex>
 
@@ -34,7 +70,7 @@ void ReaderWriter::writer()
 {
 	std::unique_lock<std::mutex> lck(mtx);
 	writers++;
-	while(readers > 0 or writers > 0)
+	while(readers > 0 or active_writers > 0)
 		writersQ.wait(lck);
 	active_writers++;
 	lck.unlock();
