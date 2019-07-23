@@ -195,3 +195,39 @@ public:
         s.resize(sindex);
     }
 };
+
+
+/*
+lettcode] Reverse Words in a String 翻转字符串中的单词
+ 
+Given an input string, reverse the string word by word.
+For example,
+Given s = "the sky is blue",
+return "blue is sky the".
+*/
+
+class Solution {
+public:
+    void reverseWords(string &s) {
+        int i = 0, j = 0, k = 0, wordCount = 0;
+        while (true) {
+            while (i < s.size() && s[i] == ' ') ++i;
+            if (i == s.size()) break;
+            if (wordCount) s[j++] = ' ';
+            k = j;
+            while (i < s.size() && s[i] != ' ') {
+                s[j] = s[i];
+                ++j; ++i;
+            }
+            reverseWord(s, k, j - 1);
+            ++wordCount;
+        }
+        s.resize(j);
+        reverseWord(s, 0, j - 1);
+    }
+    void reverseWord(string &s, int i, int j) {
+        while (i < j) {
+            swap(s[i++],s[j--]);
+        }
+    }
+};
