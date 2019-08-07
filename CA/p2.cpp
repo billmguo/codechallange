@@ -1,3 +1,25 @@
+class Solution {
+public:
+    vector<int> sortedSquares(vector<int>& A) {
+        int n = A.size();
+        vector<int> res(n);
+        int l = 0, r = n - 1;
+        int idx = n -1;
+        while(l <= r) {
+            int ls = A[l] * A[l];
+            int rs = A[r] * A[r];
+            if (ls >= rs) {
+                res[idx--] = ls;
+                l++;
+            } else{
+                res[idx--] = rs;
+                r--;
+            }
+        }
+        return res;
+    }
+};
+
 string multiplication
 
 class Solution {
