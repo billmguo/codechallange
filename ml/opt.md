@@ -1,0 +1,7 @@
+Share weights between predictor instances. Instead of loading N copies of the weights into memory, load one and share the weights instead. See e.g. https://github.com/facebook/fb-caffe-exts/blob/a8bba8660bdd2ddb6ab5409dd615139835f09a11/predictor/Predictor.cpp#L111 for an example.
+
+Reuse activations via register allocation if you're just using forward propagation. In a CNN, typically the bulk of memory used is in storing the activations at each layer. If you're doing forward propagation, you can typically reuse layer L-2 activations to store the output of layer L.
+
+See https://github.com/facebook/fb-caffe-exts#predictor for the idea. It's just doing register allocation on the interference graph formed by the Caffe layer graph. It often gets ~40% memory savings of memory (activations) for AlexNet, ~70% for VGG-16, ~90+% for GoogLeNet/ResNet. Just call https://github.com/facebook/fb-caffe-exts/blob/a8bba8660bdd2ddb6ab5409dd615139835f09a11/predictor/Optimize.h#L18 to do that.
+
+3) If you're running convolutions in Caffe, by default it runs im2col + sgemm which is fairly memory intensive. Consider using NNPACK instead (if you're on a Haswell or later CPU), which uses tiled FFT/Winograd to speed up convolutions for larger batch sizes, and substantially reducing memory consumption. https://github.com/ajtulloch/caffe/tree/nnpack-pr is the code for doing that. If you can't use NNPACK, then consider trying to share the im2col buffer across ConvolutionLayer instances. See https://github.com/BVLC/caffe/pull/2016 for an implementation of that
