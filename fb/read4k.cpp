@@ -42,24 +42,24 @@ public:
     }
 };
 
-int read(char *buf, int sz) {
-	int ck = sz/4K; n = sz%n;
-	for (int i = 0; i < ck; i++) {
-		int t = read4k(buf);
-		if (t < 0)
-			return i * 4K;
+class Reader{
+public:
+	int Read(char *buf, int n) {
+		constexpr int buflen{4096};
+		char buffer[buflen];
+		int remain = n;
+		int cnt = 0;
+		while (remain > n) {
+			int n_rb = Read4K(buffer);
+			if (n_rb >= remain) {
+				memcpy(buf + cnt, buffer, remain);
+				return n;
+			}else{
+				memcpy(buf + cnt, buffer, n_rb);
+				cnt += n_rb;
+				remain -= n_rb;
+			}
+		}
+		return cnt;
 	}
-	int start = ck * 4K;
-	if (n == 0)
-		return sz;
-	for (int i = 0; i < n; i++) {
-		if (readp == writep) {
-			writep = read4K(lbuf);
-			readp = 0;
-			if (writep)
-				return i + start;
-		}else
-			buf[start + i] = lbuf[readp++];
-	}
-	return sz;
-}
+};
