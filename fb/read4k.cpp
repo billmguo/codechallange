@@ -1,3 +1,29 @@
+Missing number
+
+class solution{
+public:
+    int missingElement(vector<int>& nums, int k) {
+        const int n = nums.size();
+        int ms = nums[n - 1] - nums[0] - (n - 1);
+        if (ms < k)
+            return nums[n - 1] + k - ms;
+        int l = 0, r = n - 1;
+        while ( l < r) {
+            int mid = l + ( r - l)/2;
+            int t = nums[mid] - nums[l] - (mid - l);
+            cout << "mid" << mid << "t" << t <<"v"<< nums[mid] <<"l" <<l <<" r" <<r<<endl;
+            if (t < k) {
+                l = mid ;
+                k -= t;
+            }else
+                r = mid - 1;
+        }
+        cout << l << "k" << k << endl;
+        return nums[l] + k;
+
+    }
+};
+
 hindex = 1, 2
 int hIndex(vector<int>& citations) {
     if(citations.empty())
