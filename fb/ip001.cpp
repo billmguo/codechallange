@@ -1,3 +1,67 @@
+/*Given n non-negative integers representing an elevation map where the width of each bar is 1, c
+ompute how much water it is able to trap after raining.*/
+
+
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        int res = 0, mx = 0, n = height.size();
+        vector<int> dp(n, 0);
+        for (int i = 0; i < n; ++i) {
+            dp[i] = mx;
+            mx = max(mx, height[i]);
+        }
+        mx = 0;
+        for (int i = n - 1; i >= 0; --i) {
+            dp[i] = min(dp[i], mx);
+            mx = max(mx, height[i]);
+            if (dp[i] > height[i]) 
+              res += dp[i] - height[i];
+        }
+        return res;
+    }
+};
+
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        stack<int> st;
+        int i = 0, res = 0, n = height.size();
+        for (int i = 0; i < n; i++) {
+          while (!st.empty() && height[i] >= height[st.top()]) {
+            int cur = st.top();
+            st.pop();
+            if (st.empty())
+              break;
+            res += (min(height[i], height[st.top()]) - height[cur]) * (i - st.top() - 1);
+          }
+          st.push(i);
+        }
+        return res;
+    }
+};
+
+/*Given n non-negative integers representing the histogram's bar height where the width of each bar is 1,
+find the area of largest rectangle in the histogra*/
+
+
+class Solution {
+public:
+    int largestRectangleArea(vector<int>& heights) {
+        int res = 0;
+        stack<int> st;
+        heights.push_back(0);
+        for (int i = 0; i < heights.size(); ++i) {
+            while (!st.empty() && heights[st.top()] >= heights[i]) {
+                int cur = st.top(); st.pop();
+                res = max(res, heights[cur] * (st.empty() ? i : (i - st.top() - 1)));
+            }
+            st.push(i);
+        }
+        return res;
+    }
+};
+
 Your are given an array of positive integers nums.
 
 Count and print the number of (contiguous) subarrays where the product of all the elements in the subarray is less than k.
