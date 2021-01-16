@@ -1,3 +1,41 @@
+Example:
+
+Input: "4(2(3)(1))(6(5))"
+Output: return the tree root node representing the following tree:
+
+       4
+     /   \
+    2     6
+   / \   / 
+  3   1 5   
+
+
+  TreeNode *string2tree(string &s) {
+    if (s.empty())
+      return nullptr;
+
+    stack<TreeNode*> st;
+
+    for (int i = 0; i < s.size(); i++) {
+      int j = i;
+      if (s[i] == ')')
+        st.pop();
+      else if (isidigit(s[i] || s[i] == '-')) {
+        while (i + 1 < s.size() && isdigit[s[i + 1]])
+          i++;
+        TreeNode *node = new TreeNode(stoi(s.substr(j, i - j + 1)));
+        if (!st.empty()) {
+          if (st.top()->left != nullptr)
+            st.top()->left = node;
+          else
+            st.top()->right = node;
+        }
+      }
+    }
+
+    return st.top();
+  }
+
 Return any binary tree that matches the given preorder and postorder traversals.
 
 Values in the traversals pre and post are distinct positive integers.
