@@ -1,3 +1,29 @@
+LeetCode 1457. Pseudo-Palindromic Paths in a Binary Tree
+
+
+class Solution {
+public:
+  int pseudoPalindromicPaths (TreeNode* root) {
+    vector<int> counts(10);
+    function<int(TreeNode*)> dfs = [&](TreeNode* node) {
+      if (!node) return 0;
+      ++counts[node->val];
+      int c = 0;
+      if (!node->left && !node->right) {
+        int odds = 0;
+        for (int i = 1; i <= 9; ++i)
+          if (counts[i] & 1) ++odds;
+        if (odds <= 1) c = 1;
+      }
+      int l = dfs(node->left);
+      int r = dfs(node->right);      
+      --counts[node->val];
+      return c + l + r;
+    };
+    return dfs(root);
+  }
+};
+
 node有键，值和子树。比如第一个的键是node1，值是‘aaaa'
 <node1>aaaaa<node2>bbbbb</node2><node3>cccc</node3><node4>dddd</node4></node1>
 第二个白人大叔主要就是聊天最后剩了点时间做了一个把：abababcdcdee变成03ab02cd01ee的压缩。都两个两个的考虑
