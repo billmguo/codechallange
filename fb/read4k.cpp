@@ -75,7 +75,7 @@ public:
 		char buffer[buflen];
 		int remain = n;
 		int cnt = 0;
-		while (remain > n) {
+		while (remain > 0) {
 			int n_rb = Read4K(buffer);
 			if (n_rb >= remain) {
 				memcpy(buf + cnt, buffer, remain);
