@@ -74,8 +74,9 @@ public:
 		constexpr int buflen{4096};
 		char buffer[buflen];
 		int remain = n;
-		int cnt = 0;
-		while (remain > 0) {
+		int cnt = 0, n_rb = 4K;
+		
+		while (remain > 0 && n_rb == 4K) {
 			int n_rb = Read4K(buffer);
 			if (n_rb >= remain) {
 				memcpy(buf + cnt, buffer, remain);
