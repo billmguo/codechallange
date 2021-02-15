@@ -1,4 +1,38 @@
-Given an array A of integers, return the length of the longest arithmetic subsequence in A.
+Implement a SnapshotArray that supports the following interface:
+
+SnapshotArray(int length) initializes an array-like data structure with the given length.  
+Initially, each element equals 0.
+void set(index, val) sets the element at the given index to be equal to val.
+int snap() takes a snapshot of the array and returns the snap_id: the total number of times 
+we called snap() minus 1.
+int get(index, snap_id) returns the value at the given index, at the time we took the 
+snapshot with the given snap_id
+
+
+class SnapshotArray {
+public:
+  SnapshotArray(int length): id_(0), vals_(length) {}
+ 
+  void set(int index, int val) {
+    vals_[index][id_] = val;
+  }
+ 
+  int snap() { return id_++; }
+ 
+  int get(int index, int snap_id) const {
+    auto it = vals_[index].upper_bound(snap_id);
+    if (it == begin(vals_[index]))
+      return 0;
+    return prev(it)->second;
+  }
+private:
+  int id_;
+  vector<map<int, int>> vals_;
+};
+
+
+
+given an array A of integers, return the length of the longest arithmetic subsequence in A.
 
 Recall that a subsequence of A is a list A[i_1], A[i_2], ..., A[i_k] with 0 <= i_1 < i_2 < ... < i_k <= A.length - 1, 
 
