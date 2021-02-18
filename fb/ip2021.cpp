@@ -254,3 +254,138 @@ public:
     return ans;
   }
 };
+Remove All Adjacent Duplicates In String
+
+class Solution {
+public:
+    string removeDuplicates(string S) {
+        string res;
+        for (const auto& ch : S)
+        {
+            if (!res.empty() && (res.back() == ch))
+                res.pop_back();
+            else
+                res += ch;
+        }
+        return res;
+    }
+};
+
+1249. Minimum Remove to Make Valid Parentheses
+
+Given a string s of '(' , ')' and lowercase English characters. 
+
+Your task is to remove the minimum number of parentheses ( '(' or ')', in any positions ) so that the resulting parentheses string is valid and return any valid string.
+
+Formally, a parentheses string is valid if and only if:
+
+It is the empty string, contains only lowercase characters, or
+It can be written as AB (A concatenated with B), where A and B are valid strings, or
+It can be written as (A), where A is a valid string.
+Example 1:
+
+
+string minRemoveToMakeValid(string s) {
+  stack<int> st;
+  for (auto i = 0; i < s.size(); ++i) {
+    if (s[i] == '(') st.push(i);
+    if (s[i] == ')') {
+      if (!st.empty()) st.pop();
+      else s[i] = '*';
+    }
+  }
+  while (!st.empty()) {
+    s[st.top()] = '*';
+    st.pop();
+  }
+  s.erase(remove(s.begin(), s.end(), '*'), s.end());
+  return s;
+}
+
+
+class Solution {
+public:
+  string minRemoveToMakeValid(string s) {    
+    int close = count(begin(s), end(s), ')');    
+    int open = 0;
+    string ans;    
+    
+    for (char c : s) {
+      if (c == '(') {
+        if (open == close) continue;
+        ++open;
+      } else if (c == ')') {
+        --close;
+        if (open == 0) continue;
+        --open;
+      }
+      ans += c;
+    }    
+    return ans;
+  }
+};
+32. Longest Valid Parentheses
+
+class Solution {
+public:
+    int longestValidParentheses(string s) {
+        int res = 0, start = 0, n = s.size();
+        stack<int> st;
+      
+        for (int i = 0; i < n; ++i) {
+            if (s[i] == '(') st.push(i);
+            else if (s[i] == ')') {
+                if (st.empty()) start = i + 1;
+                else {
+                    st.pop();
+                    res = st.empty() ? max(res, i - start + 1) : max(res, i - st.top());
+                }
+            }
+        }
+        return res;
+    }
+};
+
+Given a string S, count the number of distinct, non-empty subsequences of S .
+
+Since the result may be large, return the answer modulo 10^9 + 7.
+
+Example 1:
+
+Input: "abc"
+Output: 7
+Explanation: The 7 distinct subsequences are
+ "a", "b", "c", "ab", "ac", "bc", and "abc".
+
+Solution:
+
+counts[i][j] := # of distinct sub sequences of s[1->i] and ends with letter j. 
+
+
+Initialization:
+
+counts[*][*] = 0
+
+Transition:
+
+counts[i][j] = sum(counts[i-1]) + 1 if s[i] == j  else counts[i-1][j]
+
+ans = sum(counts[n])
+
+e.g. S = “abc”
+
+counts[1] = {‘a’ : 1}
+counts[2] = {‘a’ : 1, ‘b’ : 1 + 1 = 2}
+counts[3] = {‘a’ : 1, ‘b’ : 2, ‘c’: 1 + 2 + 1 = 4}
+ans = sum(counts[3]) = 1 + 2 + 4 = 7
+
+class Solution {
+public:
+  int distinctSubseqII(string S) {
+    constexpr int kMod = 1e9 + 7;
+    std::vector<int> counts(26);
+    for (char c : S)
+      counts[c - 'a'] = accumulate(begin(counts), end(counts), 1L) % kMod;
+    return accumulate(begin(counts), end(counts), 0L) % kMod;
+  }
+};
