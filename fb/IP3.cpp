@@ -1,3 +1,47 @@
+A valid parentheses string is either empty (""), "(" + A + ")", or A + B, where A and B are valid parentheses strings, and + represents string concatenation.  For example, "", "()", "(())()", and "(()(()))" are all valid parentheses strings.
+
+A valid parentheses string S is primitive if it is nonempty, and there does not exist a way to split it into S = A+B, with A and B nonempty valid parentheses strings.
+
+Given a valid parentheses string S, consider its primitive decomposition: S = P_1 + P_2 + ... + P_k, where P_i are primitive valid parentheses strings.
+
+Return S after removing the outermost parentheses of every primitive string in the primitive decomposition of S.
+
+Example 1:
+
+Input: "(()())(())"
+Output: "()()()"
+Explanation:
+The input string is "(()())(())", with primitive decomposition "(()())" + "(())".
+After removing outer parentheses of each part, this is "()()" + "()" = "()()()".
+
+class Solution {
+public:
+    string removeOuterParentheses(string S) {
+        string res = "";
+        int cnt = 0, start = 0, n = S.size();
+        for (int i = 0; i < n; ++i) {
+            (S[i] == '(') ? ++cnt : --cnt;
+            if (cnt != 0) continue;
+            res += S.substr(start + 1, i - start - 1);
+            start = i + 1;
+        }
+        return res;
+    }
+};
+
+class Solution {
+public:
+    string removeOuterParentheses(string S) {
+        string res;
+        int cnt = 0;
+        for (char c : S) {
+            if (c == '(' && cnt++ > 0) res.push_back(c);
+            if (c == ')' && cnt-- > 1) res.push_back(c);
+        }
+        return res;
+    }
+};
+==========
 Battleship
 
 class Solution {
