@@ -389,3 +389,121 @@ public:
     return accumulate(begin(counts), end(counts), 0L) % kMod;
   }
 };
+
+674. Longest Continuous Increasing Subsequence 最长连续递增序列
+ 
+
+Given an unsorted array of integers, find the length of longest continuous increasing subsequence.
+
+Example 1:
+
+Input: [1,3,5,4,7]
+Output: 3
+Explanation: The longest continuous increasing subsequence is [1,3,5], its length is 3. 
+Even though [1,3,5,7] is also an increasing subsequence, it's not a continuous one where 5 and 7 are separated by 4. 
+ 
+
+
+class Solution {
+public:
+    int findLengthOfLCIS(vector<int>& nums) {
+        int res = 0, cnt = 0, n = nums.size();
+        for (int i = 0; i < n; ++i) {
+        	if（i  == 0|| nums[i-1] < nums[i]) 
+            	res = max(res, ++cnt);
+            else 
+            	cnt = 1;
+        }
+        return res;
+    }
+};
+
+Squares of a Sorted Array 有序数组的平方值
+
+Given an integer array nums sorted in non-decreasing order, return an array of the squares of each number sorted in non-decreasing order.
+
+class Solution {
+public:
+    vector<int> sortedSquares(vector<int>& A) {
+        int n = A.size(), i = 0, j = n - 1;
+        vector<int> res(n);
+        for (int k = n - 1; k >= 0; --k) {
+            if (abs(A[i]) > abs(A[j])) {
+                res[k] = A[i] * A[i];
+                ++i;
+            } else {
+                res[k] = A[j] * A[j];
+                --j;
+            }
+        }
+        return res;
+    }
+};
+
+
+ Friend Circles 
+ 
+
+There are N students in a class. Some of them are friends, while some are not. Their friendship is transitive in nature. For example, if A is a direct friend of B, and B is a direct friend of C, then A is an indirect friend of C. And we defined a friend circle is a group of students who are direct or indirect friends.
+
+Given a N*N matrix M representing the friend relationship between students in the class. If M[i][j] = 1, then the ithand jth students are direct friends with each other, otherwise not. And you have to output the total number of friend circles among all the students.
+
+Example 1:
+
+Input: 
+[[1,1,0],
+ [1,1,0],
+ [0,0,1]]
+Output: 2
+Explanation:The 0th and 1st students are direct friends, so they are in a friend circle. 
+The 2nd student himself is in a friend circle. So return 2.
+
+class Solution {
+public:
+    int findCircleNum(vector<vector<int>>& M) {
+        int n = M.size(), cnt = 0;
+        vector<bool> visited(n, false);
+      
+        function<void(int)> dfs = [&](int k) {
+        	visited[i] = true;
+        	for (int i = 0; i < n; i++) {
+        		if (!M[k][i] || visited[i])
+        			continue;
+        		dfs(i);
+        	}
+        }
+      
+        for (int i = 0; i < n; ++i) {
+            if (visited[i]) 
+            	continue;
+            dfs(i);
+            ++cnt;
+        }
+        return cnt;
+    }
+
+}
+
+class Solution {
+public:
+    int findCircleNum(vector<vector<int>>& M) {
+        int n = M.size(), res = 0;
+        vector<bool> visited(n, false);
+        for (int i = 0; i < n; ++i) {
+            if (visited[i]) 
+            	continue;
+            helper(M, i, visited);
+            ++res;
+        }
+        return res;
+    }
+
+  
+    void helper(vector<vector<int>>& M, int k, vector<bool>& visited) {
+        visited[k] = true;
+        for (int i = 0; i < M.size(); ++i) {
+            if (!M[k][i] || visited[i]) continue;
+            helper(M, i, visited);
+        }
+    }
+};
