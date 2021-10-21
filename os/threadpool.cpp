@@ -82,3 +82,50 @@ inline ThreadPool::~ThreadPool()
     for(auto &worker: workers)
         worker.join();
 }
+
+
+
+Time taskes
+using F = function<void()>;
+class Timer {
+    bool clear = false;
+    mutex m;
+public:
+    void setTimeout(F &callback, int delay);
+    void setInterval(F &callback, int interval);
+    void stop();
+};
+
+void Timer::setInterval(F&& callback, int interval) {
+    this->clear = false;
+    std::thread t([=]() {
+    	while(true) {
+    		if (this->clear) return;
+    		std::this_thread::sleep_for(interval);
+    		if (this->clear) return;
+    		callback();
+    	}
+    });
+    t.detach();
+}
+
+void Timer::setTimeout(F&& callback, int delay) {
+    this->clear = false;
+    std::thread t([=](){
+        if(this->clear) return;
+        this->thread::sleep(delay);
+        if(this->clear) return;
+        callback();
+    });
+    t.detach();
+}
+
+void Timer::stop() {
+    this->clear = true;
+}
+
+interrupt_register(ISR_number,timer_isr)
+
+void timer_isr() {
+	this->clear = false;
+}
