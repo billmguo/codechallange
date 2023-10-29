@@ -1,3 +1,100 @@
+
+TreeDiameter Description
+Given an undirected tree, return its diameter: the number of edges in a longest path in that tree.
+
+The tree is given as an array of edges where edges[i] = [u, v] is a bidirectional edge between nodes u and v. Each node has labels in the set {0, 1, ..., edges.length}.
+
+
+
+class Solution {
+ public:
+  int treeDiameter(vector<vector<int>>& edges) {
+    const int n = edges.size();
+    int ans = 0;
+    vector<vector<int>> tree(n + 1);
+
+    for (const vector<int>& edge : edges) {
+      const int u = edge[0];
+      const int v = edge[1];
+      tree[u].push_back(v);
+      tree[v].push_back(u);
+    }
+
+    maxDepth(tree, 0, -1, ans);
+    return ans;
+  }
+
+ private:
+  int maxDepth(const vector<vector<int>>& tree, int u, int parent, int& ans) {
+    int maxDepth1 = 0;   // The max depth
+    int maxDepth2 = -1;  // The 2nd max depth
+
+    for (const int v : tree[u]) {
+      if (v == parent)
+        continue;
+      const int depth = maxDepth(tree, v, u, ans);
+      if (depth > maxDepth1) {
+        maxDepth2 = maxDepth1;
+        maxDepth1 = depth;
+      } else if (depth > maxDepth2) {
+        maxDepth2 = depth;
+      }
+    }
+
+    ans = max(ans, maxDepth1 + maxDepth2);
+    return 1 + maxDepth1;
+  }
+};
+
+1361 You have n binary tree nodes numbered from 0 to n - 1 where node i has two children leftChild[i] and rightChild[i], return true if and only if all the given nodes form exactly one valid binary tree.
+
+If node i has no left child then leftChild[i] will equal -1, similarly for the right child.
+
+Note that the nodes have no values and that we only use the node numbers in this problem.
+ 
+class Solution {
+ public:
+  bool validateBinaryTreeNodes(int n, vector<int>& leftChild,
+                               vector<int>& rightChild) {
+    vector<int> inDegree(n);
+    int root = -1;
+
+    // If inDegree of any node > 1, return false
+    for (const int child : leftChild)
+      if (child != -1 && ++inDegree[child] == 2)
+        return false;
+
+    for (const int child : rightChild)
+      if (child != -1 && ++inDegree[child] == 2)
+        return false;
+
+    // Find the root (node with inDegree == 0)
+    for (int i = 0; i < n; ++i)
+      if (inDegree[i] == 0)
+        if (root == -1)
+          root = i;
+        else
+          return false;  // Multiple roots
+
+    // didn't find the root
+    if (root == -1)
+      return false;
+
+    return countNodes(root, leftChild, rightChild) == n;
+  }
+
+ private:
+  int countNodes(int root, const vector<int>& leftChild,
+                 const vector<int>& rightChild) {
+    if (root == -1)
+      return 0;
+    return 1 +  //
+           countNodes(leftChild[root], leftChild, rightChild) +
+           countNodes(rightChild[root], leftChild, rightChild);
+  }
+};
+
+
 Given a string S, we can transform every letter individually to be lowercase or uppercase to create another string.  Return a list of all possible strings we could create.
 
 Examples:
