@@ -1,3 +1,57 @@
+1038 Given the root of a Binary Search Tree (BST), convert it to a Greater Tree such that every key of the original BST is changed to the original key plus sum of all keys greater than the original key in BST.
+
+As a reminder, a  binary search tree  is a tree that satisfies these constraints:
+
+The left subtree of a node contains only nodes with keys less than the node’s key.
+The right subtree of a node contains only nodes with keys greater than the node’s key.
+Both the left and right subtrees must also be binary search trees.
+
+class Solution {
+public:
+    TreeNode* bstToGst(TreeNode* root) {
+        int cur = 0;
+        helper(root, cur);
+        return root;
+    }
+    void helper(TreeNode*& node, int& cur) {
+        if (!node) return;
+        helper(node->right, cur);
+        node->val += cur;
+        cur = node->val;
+        helper(node->left, cur);
+    }
+};
+2025
+You are given a 0-indexed integer array nums of length n. The number of ways to partition nums is the
+number of pivot indices that satisfy both conditions:
+
+1 <= pivot < n
+nums[0] + nums[1] + ... + nums[pivot - 1] == nums[pivot] + nums[pivot + 1] + ... + nums[n - 1]
+You are also given an integer k. You can choose to change the value of one element of nums to k, or to leave the array unchanged.
+
+Return the maximum possible number of ways to partition nums to satisfy both conditions after changing at most one element
+int waytopartition(vector<int> &nums, int k) {
+	int n = nums.size();
+	long sum = accumulate(begin(nums),end(nums), 0L);
+	int prefix = 0;
+	unordered_map<long, int> l, r;
+	for (int i = 1; i < n; ++i) {
+		prefix += nums[i-1];
+		long suffix = sum - prefix;
+		++r[prefix - suffix];
+	}
+	int ans = rm[0];
+	prefix = 0;
+	for (int i = 0; i < n; ++i) {
+		prefix += nums[i];
+		int d = k - nuums[i];
+		ans  = max(ans, l[d] + r[-d]);
+		long suffix = sum - nums;
+		diff = prefix - suffix;
+		--r[diff];
+		++l[diff];
+	}
+}
 
 TreeDiameter Description
 Given an undirected tree, return its diameter: the number of edges in a longest path in that tree.
