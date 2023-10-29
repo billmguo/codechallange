@@ -1,3 +1,43 @@
+Given a string S, we can transform every letter individually to be lowercase or uppercase to create another string.  Return a list of all possible strings we could create.
+
+Examples:
+Input: S = "a1b2"
+Output: ["a1b2", "a1B2", "A1b2", "A1B2"]
+
+Input: S = "3z4"
+Output: ["3z4", "3Z4"]
+
+Input: S = "12345"
+Output: ["12345"]
+
+
+class Solution {
+ public:
+  vector<string> letterCasePermutation(string s) {
+    vector<string> ans;
+    dfs(s, 0, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(string& s, int i, vector<string>& ans) {
+    if (i == s.length()) {
+      ans.push_back(s);
+      return;
+    }
+    if (isdigit(s[i])) {
+      dfs(s, i + 1, ans);
+      return;
+    }
+
+    s[i] = tolower(s[i]);
+    dfs(s, i + 1, ans);
+    s[i] = toupper(s[i]);
+    dfs(s, i + 1, ans);
+  }
+};
+
+
 Given a string s, find the longest palindromic subsequence’s length in s. You may assume that the maximum length of s is 1000.
   
 class Solution {
