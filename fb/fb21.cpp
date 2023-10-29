@@ -1,44 +1,75 @@
-1011
 
-A conveyor belt has packages that must be shipped from one port to another within D days.
+1143. Longest Common Subsequence
+Given two strings text1 and text2, return the length of their longest common subsequence.
 
-The i-th package on the conveyor belt has a weight of weights[i].  Each day, we load the ship with packages on the conveyor belt (in the order given by weights). We may not load more weight than the maximum weight capacity of the ship.
+A subsequence of a string is a new string generated from the original string with some 
+characters(can be none) deleted without changing the relative order of the remaining characters.
+(eg, "ace" is a subsequence of "abcde" while "aec" is not). A common subsequence of two strings
+is a subsequence that is common to both strings.
 
-Return the least weight capacity of the ship that will result in all the packages on the conveyor belt being shipped within D d
+ 
+
+If there is no common subsequence, return 0.
+class Solution {
+ public:
+  int longestCommonSubsequence(string text1, string text2) {
+    const int m = text1.length();
+    const int n = text2.length();
+    // dp[i][j] := LCS's length of text1[0..i) and text2[0..j)
+    vector<vector<int>> dp(m + 1, vector<int>(n + 1));
+
+    for (int i = 0; i < m; ++i){
+      for (int j = 0; j < n; ++j){
+         if (text[i] == text2[j)
+             dp[i + 1][j + 1] = 1 + dp[i][j];
+         else{
+             dp[i + 1][j + 1] = max(dp[i][j + 1], dp[i+1][j]; 
+         }
+      }
+    }
+
+    return dp[m][n];
+  }
+};
+
+1062. Longest Repeating Substring
+Given a string S, find out the length of the longest repeating
+ substring(s). Return 0 if no repeating substring exists.
+
+ 
+
+Example 1:
+
+Input: "abcd"
+Output: 0
+Explanation: There is no repeating substring.
+Example 2:
+
+Input: "abbaba"
+Output: 2
+Explanation: The longest repeating substrings are
+ "ab" and "ba", each of which occurs twice.
+
 
 
 class Solution {
  public:
-  int shipWithinDays(vector<int>& weights, int days) {
-    int l = ranges::max(weights);
-    int r = accumulate(weights.begin(), weights.end(), 0);
+  int longestRepeatingSubstring(string s) {
+    const int n = s.length();
+    int ans = 0;
+    // dp[i][j] := # of repeating chars of s[0..i) and s[0..j)
+    vector<vector<int>> dp(n + 1, vector<int>(n + 1));
 
-    while (l < r) {
-      const int m = (l + r) / 2;
-      if (shipDays(weights, m) <= days)
-        r = m;
-      else
-        l = m + 1;
-    }
+    for (int i = 1; i <= n; ++i)
+      for (int j = i + 1; j <= n; ++j)
+        if (s[i - 1] == s[j - 1]) {
+          dp[i][j] = 1 + dp[i - 1][j - 1];
+          ans = max(ans, dp[i][j]);
+        }
 
-    return l;
+    return ans;
   }
-
- private:
-  int shipDays(const vector<int>& weights, int shipCapacity) {
-    int days = 1;
-    int capacity = 0;
-    for (const int weight : weights)
-      if (capacity + weight > shipCapacity) {
-        ++days;
-        capacity = weight;
-      } else {
-        capacity += weight;
-      }
-    return days;
-  };
 };
-
 
 You have a pointer at index 0 in an array of size arrLen. At each step, you can move 1 position to the left, 1 position to the right in the array or stay in the same place  (The pointer should not be placed outside the array at any time).
 
@@ -93,6 +124,49 @@ dp[0][0] = 1
         }
         return (int) dp[steps][0];
     }
+
+
+1011
+
+A conveyor belt has packages that must be shipped from one port to another within D days.
+
+The i-th package on the conveyor belt has a weight of weights[i].  Each day, we load the ship with packages on the conveyor belt (in the order given by weights). We may not load more weight than the maximum weight capacity of the ship.
+
+Return the least weight capacity of the ship that will result in all the packages on the conveyor belt being shipped within D d
+
+
+class Solution {
+ public:
+  int shipWithinDays(vector<int>& weights, int days) {
+    int l = ranges::max(weights);
+    int r = accumulate(weights.begin(), weights.end(), 0);
+
+    while (l < r) {
+      const int m = (l + r) / 2;
+      if (shipDays(weights, m) <= days)
+        r = m;
+      else
+        l = m + 1;
+    }
+
+    return l;
+  }
+
+ private:
+  int shipDays(const vector<int>& weights, int shipCapacity) {
+    int days = 1;
+    int capacity = 0;
+    for (const int weight : weights)
+      if (capacity + weight > shipCapacity) {
+        ++days;
+        capacity = weight;
+      } else {
+        capacity += weight;
+      }
+    return days;
+  };
+};
+
 
   
 leetcode 918
