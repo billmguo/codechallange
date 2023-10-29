@@ -1,3 +1,33 @@
+1762
+
+Buildings With an Ocean View
+Description
+There are n buildings in a line. You are given an integer array heights of size n that represents the heights of the buildings in the line.
+
+The ocean is to the right of the buildings. A building has an ocean view if the building can see the ocean without obstructions. Formally, a building has an ocean view if all the buildings to its right have a smaller height.
+
+Return a list of indices (0-indexed) of buildings that have an ocean view, sorted in increasing order.
+
+Example 1:
+
+Input: heights = [4,2,3,1]
+
+Output: [0,2,3]
+
+class Solution {
+ public:
+  vector<int> findBuildings(vector<int>& heights) {
+    vector<int> stack;
+
+    for (int i = 0; i < heights.size(); ++i) {
+      while (!stack.empty() && heights[stack.back()] <= heights[i])
+        stack.pop_back();
+      stack.push_back(i);
+    }
+
+    return stack;
+  }
+};
 1038 Given the root of a Binary Search Tree (BST), convert it to a Greater Tree such that every key of the original BST is changed to the original key plus sum of all keys greater than the original key in BST.
 
 As a reminder, a  binary search tree  is a tree that satisfies these constraints:
