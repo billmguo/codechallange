@@ -371,6 +371,41 @@ public:
     }
 };
 
+1008 Return the root node of a binary search tree that matches the given preorder traversal.
+
+(Recall that a binary search tree is a binary tree where for every node,
+ any descendant ofnode.left has a value < node.val, and any descendant of node.
+ right has a value > node.val.  Also recall that a preorder traversal displays the 
+ value of the node first, then traverses node.left, then traverses node.right.)
+
+It’s guaranteed that for the given test cases there is always possible to find 
+a binary search tree with the given requirements.
+
+
+class Solution {
+ public:
+  TreeNode* bstFromPreorder(vector<int>& preorder) {
+    TreeNode* root = new TreeNode(preorder[0]);
+    stack<TreeNode*> stack{{root}};
+
+    for (int i = 1; i < preorder.size(); ++i) {
+      TreeNode* parent = stack.top();
+      TreeNode* child = new TreeNode(preorder[i]);
+      // Adjust parent
+      while (!stack.empty() && stack.top()->val < child->val)
+        parent = stack.top(), stack.pop();
+      // Create parent-child link according to BST property
+      if (parent->val > child->val)
+        parent->left = child;
+      else
+        parent->right = child;
+      stack.push(child);
+    }
+
+    return root;
+  }
+};
+
 The system should support the following functions:
 
 Search: Finds the cheapest 5 shops that have an unrented copy of a given movie. The shops should be sorted by price in ascending order, and in case of a tie, the one with the smaller shopi should appear first. If there are less than 5 matching shops, then all of them should be returned. If no shop has an unrented copy, then an empty list should be returned.
