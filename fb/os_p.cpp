@@ -1,3 +1,57 @@
+timer callback
+
+#include <iostream>
+#include <thread>
+#include <chrono>
+#include <atomic>
+
+class Timer {
+	std::atomic<bool> active{true};
+	
+    public:
+        void setTimeout(auto function, int delay);
+        void setInterval(auto function, int interval);
+        void stop();
+
+};
+
+void Timer::setTimeout(auto function, int delay) {
+    active = true;
+    std::thread t([=]() {
+        if(!active.load()) return;
+        std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+        if(!active.load()) return;
+        function();
+    });
+    t.detach();
+}
+
+void Timer::setInterval(auto function, int interval) {
+    active = true;
+    std::thread t([=]() {
+        while(active.load()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+            if(!active.load()) return;
+            function();
+        }
+    });
+    t.detach();
+}
+
+void Timer::stop() {
+    active = false;
+}
+
+
+   t.setInterval([&]() {
+        cout << "Hey.. After each 1s..." << endl;
+    }, 1000); 
+
+    t.setTimeout([&]() {
+        cout << "Hey.. After 5.2s. But I will stop the timer!" << endl;
+        t.stop();
+    }, 5200); 
+
 allocate 2D 
 
 class Solution {
