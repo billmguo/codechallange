@@ -1,3 +1,44 @@
+Two strings X and Y are similar if we can swap two letters (in different positions) of X, so that it equals Y.
+
+For example, "tars" and "rats" are similar (swapping at positions 0 and 2), and 
+"rats" and "arts" are similar, but "star" is not similar to "tars", "rats", or "arts".
+
+Together, these form two connected groups by similarity: {"tars", "rats", "arts"}
+and {"star"}.  Notice that "tars" and "arts" are in the same group even though they are not similar.  
+ Formally, each group is such that a word is in the group if and only if it is similar to at least one other word in the group.
+
+We are given a list A of strings.  Every string in A is an anagram of every other string in A. 
+ How many groups are there?
+class Solution {
+public:
+    int numSimilarGroups(vector<string>& A) {
+        int res = 0, n = A.size();
+        vector<int> root(n);
+        for (int i = 0; i < n; ++i) root[i] = i;
+        for (int i = 1; i < n; ++i) {
+            for (int j = 0; j < i; ++j) {
+                if (!isSimilar(A[i], A[j])) continue;
+                root[getRoot(root, j)] = i;
+            }
+        }
+        for (int i = 0; i < n; ++i) {
+            if (root[i] == i) ++res;
+        }
+        return res;
+    }
+    int getRoot(vector<int>& root, int i) {
+        return (root[i] == i) ? i : getRoot(root, root[i]);
+    }
+    bool isSimilar(string& str1, string& str2) {
+           for (int i = 0, cnt = 0; i < str1.size(); ++i) {
+               if (str1[i] == str2[i]) continue;
+               if (++cnt > 2) return false;
+           }
+           return true;
+       }
+};
+
+
 count hills and Valley
 class Solution {
  public:
