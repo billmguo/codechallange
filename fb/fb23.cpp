@@ -1,3 +1,77 @@
+class UnionFind {
+ public:
+  UnionFind(int n) : id(n), rank(n) {
+    iota(id.begin(), id.end(), 0);
+  }
+
+  void unionByRank(int u, int v) {
+    const int i = find(u);
+    const int j = find(v);
+    if (i == j)
+      return;
+    if (rank[i] < rank[j]) {
+      id[i] = j;
+    } else if (rank[i] > rank[j]) {
+      id[j] = i;
+    } else {
+      id[i] = j;
+      ++rank[j];
+    }
+  }
+
+  int find(int u) {
+    return id[u] == u ? u : id[u] = find(id[u]);
+  }
+
+ private:
+  vector<int> id;
+  vector<int> rank;
+};
+
+You are given an integer n indicating the number of people in a network. Each person is labeled from 0 to n - 1.
+
+You are also given a 0-indexed 2D integer array restrictions, where restrictions[i] = [xi, yi] 
+means that person xi and person yi cannot become friends, either directly or indirectly through other people.
+
+Initially, no one is friends with each other. You are given a list of friend requests as a 
+0-indexed 2D integer array requests, where requests[j] = [uj, vj] is a friend request between person uj and person vj.
+
+A friend request is successful if uj and vj can be friends. Each friend request is processed 
+in the given order (i.e., requests[j] occurs before requests[j + 1]), and upon a successful request, uj 
+and vj become direct friends for all future friend requests.
+
+Return a boolean array result, where each result[j] is true if the jth friend request is successful or false if it is not.
+
+Note: If uj and vj are already direct friends, the request is still successful.
+class Solution {
+ public:
+  vector<bool> friendRequests(int n, vector<vector<int>>& restrictions,
+                              vector<vector<int>>& requests) {
+    vector<bool> ans;
+    UnionFind uf(n);
+
+    for (const vector<int>& request : requests) {
+      const int i = uf.find(request[0]);
+      const int j = uf.find(request[1]);
+      bool isValid = true;
+      if (i != j)
+        for (const vector<int>& restriction : restrictions) {
+          const int x = uf.find(restriction[0]);
+          const int y = uf.find(restriction[1]);
+          if (i == x && j == y || i == y && j == x) {
+            isValid = false;
+            break;
+          }
+        }
+      ans.push_back(isValid);
+      if (isValid)
+        uf.unionByRank(i, j);
+    }
+
+    return ans;
+  }
+};
+
 There are n people standing in a queue, and they numbered from 0 to n - 1 in 
  left to right order. You are given an array heights of distinct integers 
 where heights[i] represents the height of the i-th person.
