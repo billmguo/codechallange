@@ -1,3 +1,250 @@
+
+/*
+You have n tasks and m workers. Each task has a strength requirement stored in a 0-indexed integer array tasks, with the ith task requiring tasks[i] strength to complete. The strength of each worker is stored in a 0-indexed integer array workers, with the jth worker having workers[j] strength. Each worker can only be assigned to a single task and must have a strength greater than or equal to the task's strength requirement (i.e., workers[j] >= tasks[i]).
+
+Additionally, you have pills magical pills that will increase a worker's strength by strength. You can decide which workers receive the magical pills, however, you may only give each worker at most one magical pill.
+
+Given the 0-indexed integer arrays tasks and workers and the integers pills and strength, return the maximum number of tasks that can be completed.
+
+Input: tasks = [3,2,1], workers = [0,3,3], pills = 1, strength = 1
+Output: 3
+Explanation:
+We can assign the magical pill and tasks as follows:
+- Give the magical pill to worker 0.
+- Assign worker 0 to task 2 (0 + 1 >= 1)
+- Assign worker 1 to task 1 (3 >= 2)
+- Assign worker 2 to task 0 (3 >= 3)
+
+*/
+
+class Solution {
+ public:
+  int maxTaskAssign(vector<int>& tasks, vector<int>& workers, int pills,
+                    int strength) {
+    int ans = 0;
+    int l = 0;
+    int r = min(tasks.size(), workers.size());
+
+    ranges::sort(tasks);
+    ranges::sort(workers);
+
+    // Can we finish k tasks?
+    auto canComplete = [&](int k, int pillsLeft) {
+      // K strongest workers
+      map<int, int> m;
+      for (int i = workers.size() - k; i < workers.size(); ++i)
+        ++m[workers[i]];
+
+      // Out of the k smallest tasks, start from the biggest one.
+      for (int i = k - 1; i >= 0; --i) {
+        // Find the first worker that has strength >= tasks[i].
+        auto it = m.lower_bound(tasks[i]);
+        if (it != m.end()) {
+	         if (--(it->second) == 0)
+	            m.erase(it);
+        } else if (pillsLeft > 0) {
+          // Find the first worker that has strength >= tasks[i] - strength.
+	          it = m.lower_bound(tasks[i] - strength);
+	          if (it != m.end()) {
+	             if (--(it->second) == 0)
+			              m.erase(it);
+			      --pillsLeft;
+	          } else {
+	           	 return false;
+	          }
+        } else {
+          	  return false;
+        }
+      }
+
+        return true;
+    };
+
+    while (l <= r) {
+      const int m = (l + r) / 2;
+      if (canComplete(m, pills)) {
+        ans = m;
+        l = m + 1;
+      } else {
+        r = m - 1;
+      }
+    }
+
+    return ans;
+  }
+};
+
+
+
+
+
+/*
+Median is the middle value in an ordered integer list. If the size of the list is even, 
+there is no middle value. So the median is the mean of the two middle value.
+
+Examples:
+
+[2,3,4] , the median is 3
+
+[2,3], the median is (2 + 3) / 2 = 2.5
+
+Given an array nums , there is a sliding window of size k w
+hich is moving from the very left of the array to the very right. You can only see the
+ k numbers in the window. Each time the sliding window moves right by one position. Your job is t
+ o output the median array for each window in the original array.
+
+*/
+
+class Solution {
+ public:
+  vector<double> medianSlidingWindow(vector<int>& nums, int k) {
+    vector<double> ans;
+    multiset<double> window(nums.begin(), nums.begin() + k);
+    auto it = next(window.begin(), (k - 1) / 2);
+
+    for (int i = k;; ++i) {
+      const double median = k & 1 ? *it : (*it + *next(it)) / 2.0;
+      ans.push_back(median);
+      if (i == nums.size())
+        break;
+      window.insert(nums[i]);
+      if (nums[i] < *it)
+        --it;
+      if (nums[i - k] <= *it)
+        ++it;
+      window.erase(window.lower_bound(nums[i - k]));
+    }
+
+    return ans;
+  }
+};
+
+
+
+/*
+On an N x N grid, each square grid[i][j] represents the elevation at that point (i,j).
+
+Now rain starts to fall. At time t, the depth of the water everywhere is t. You can
+ swim from a square to another 4-directionally adjacent square if and only if the 
+ elevation of both squares individually are at most t. You can swim infinite distance 
+ in zero time. Of course, you must stay within the boundaries of the grid during your swim.
+
+You start at the top left square (0, 0). What is the least time until you can 
+reach the bottom right square (N-1, N-1)?
+
+
+*/
+class Solution {
+public:
+    int swimInWater(vector<vector<int>>& grid) {
+        int res = 0, n = grid.size();
+        unordered_set<int> visited{0};
+        vector<vector<int>> dirs{{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
+        auto cmp = [](pair<int, int>& a, pair<int, int>& b) {return a.first > b.first;};
+        priority_queue<pair<int, int>, vector<pair<int, int>>, decltype(cmp) > q(cmp);
+        q.push({grid[0][0], 0});
+        while (!q.empty()) {
+            int i = q.top().second / n, j = q.top().second % n; q.pop();
+            res = max(res, grid[i][j]);
+            if (i == n - 1 && j == n - 1) return res;
+            for (auto dir : dirs) {
+                int x = i + dir[0], y = j + dir[1];
+                if (x < 0 || x >= n || y < 0 || y >= n || visited.count(x * n + y)) continue;
+                visited.insert(x * n + y);
+                q.push({grid[x][y], x * n + y});
+            }
+        }
+        return res;
+    }
+};
+
+/*There is an undirected graph with n nodes numbered from 0 to n - 1 (inclusive). You are given a 0-indexed integer array values where values[i] is the value of the ith node. You are also given a 0-indexed 2D integer array edges, where each edges[j] = [uj, vj, timej] indicates that there is an undirected edge between the nodes uj and vj, and it takes timej seconds to travel between the two nodes. Finally, you are given an integer maxTime.
+
+A valid path in the graph is any path that starts at node 0, ends at node 0, and takes at most maxTime seconds to complete. You may visit the same node multiple times. The quality of a valid path is the sum of the values of the unique nodes visited in the path (each node's value is added at most once to the sum).
+
+Return the maximum quality of a valid path.
+
+Note: There are at most four edges connected to each node.*/
+
+class Solution {
+ public:
+  int maximalPathQuality(vector<int>& values, vector<vector<int>>& edges,
+                         int maxTime) {
+    const int n = values.size();
+    int ans = 0;
+    vector<vector<pair<int, int>>> graph(n);
+    vector<int> seen(n);
+    seen[0] = 1;
+
+    for (const vector<int>& edge : edges) {
+      const int u = edge[0];
+      const int v = edge[1];
+      const int time = edge[2];
+      graph[u].emplace_back(v, time);
+      graph[v].emplace_back(u, time);
+    }
+
+    dfs(graph, values, 0, values[0], maxTime, seen, ans);
+    return ans;
+  }
+
+ private:
+  void dfs(const vector<vector<pair<int, int>>>& graph,
+           const vector<int>& values, int u, int quality, int remainingTime,
+           vector<int>& seen, int& ans) {
+    if (u == 0)
+      ans = max(ans, quality);
+    for (const auto& [v, time] : graph[u]) {
+      if (time > remainingTime)
+        continue;
+      const int newQuality = quality + values[v] * (seen[v] == 0);
+      ++seen[v];
+      dfs(graph, values, v, newQuality, remainingTime - time, seen, ans);
+      --seen[v];
+    }
+  }
+};
+
+
+for (const auto & [v, time]:graph[u]) {
+	if (time > remainingTime) {
+		continue;
+	}
+	int nq = qaultiy + values[v]*(seen[v] == 0);
+	++seen[v];
+	dfs(graph, values, v, nq, remainingTime - time, seen, ans)
+	--seen[v];
+}
+
+
+
+C++
+
+ Given a 2D integer array nums, return all elements of nums in diagonal order as shown in the below images.
+
+class Solution {
+ public:
+  vector<int> findDiagonalOrder(vector<vector<int>>& nums) {
+    vector<int> ans;
+    unordered_map<int, vector<int>> keyToNums;  // Key = row + col
+    int maxKey = 0;
+
+    for (int i = 0; i < nums.size(); ++i)
+      for (int j = 0; j < nums[i].size(); ++j) {
+        const int key = i + j;
+        keyToNums[key].push_back(nums[i][j]);
+        maxKey = max(maxKey, key);
+      }
+
+    for (int i = 0; i <= maxKey; ++i)
+      for (auto it = keyToNums[i].rbegin(); it != keyToNums[i].rend(); ++it)
+        ans.push_back(*it);
+
+    return ans;
+  }
+};
+
+
 class UnionFind {
  public:
   UnionFind(int n) : id(n), rank(n) {
