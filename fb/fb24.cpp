@@ -1,3 +1,34 @@
+Given the root of a binary search tree, return a balanced binary search tree with the same node values.
+ If there is more than one answer, return any of them.
+
+A binary search tree is balanced if the depth of the two subtrees of every node never differs by more than 1.
+class Solution {
+ public:
+  TreeNode* balanceBST(TreeNode* root) {
+    vector<int> nums;
+    inorder(root, nums);
+    return build(nums, 0, nums.size() - 1);
+  }
+
+ private:
+  void inorder(TreeNode* root, vector<int>& nums) {
+    if (root == nullptr)
+      return;
+    inorder(root->left, nums);
+    nums.push_back(root->val);
+    inorder(root->right, nums);
+  }
+
+  // Same as 108. Convert Sorted Array to Binary Search Tree
+  TreeNode* build(const vector<int>& nums, int l, int r) {
+    if (l > r)
+      return nullptr;
+    const int m = (l + r) / 2;
+    return new TreeNode(nums[m], build(nums, l, m - 1), build(nums, m + 1, r));
+  }
+};
+
+
 Given an integer n, find a sequence that satisfies all of the following:
 
 The integer 1 occurs once in the sequence.
