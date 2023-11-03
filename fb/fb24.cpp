@@ -1,4 +1,115 @@
- 1539. Kth Missing Positive Number
+/*Balanced Split
+Given an array of integers (which may include repeated integers), determine if there's a way to split the array into two subsequences A and B such that the sum of the integers in both arrays is the same, and all of the integers in A are strictly smaller than all of the integers in B.
+Note: Strictly smaller denotes that every integer in A must be less than, and not equal to, every integer in B.
+Signature
+bool balancedSplitExists(int[] arr)
+
+*/
+
+bool balancedSplitExists(vector<int> &arr) {
+	int len = arr.size();
+	if (len == 0)
+		return false;
+	sort(arr.begin(),arr.end());
+	
+	int rsum = arr[len - 1];
+	int lsum = accumulate(arr.begin(), arr.end(), 0);
+	lsum -= rsum;
+
+	for (int i = len - 2; i >= 0; i--) {
+		if (lsum == rsum )
+			return true;
+		if (lsum < rsum)
+			break;
+		lsum -= arr[i];
+		rsum += arr[i];
+	}
+	return false;
+}
+
+
+
+
+Seating Arrangements
+
+There are n guests attending a dinner party, numbered from 1 to n. The ith guest has a height of arr[i-1] inches.
+The guests will sit down at a circular table which has n seats, numbered from 1 to n in clockwise order around the table. As the host, you will choose how to arrange the guests, one per seat. Note that there are n! possible permutations of seat assignments.
+Once the guests have sat down, the awkwardness between a pair of guests sitting in adjacent seats is defined as the absolute difference between their two heights. Note that, because the table is circular, seats 1 and n are considered to be adjacent to one another, and that there are therefore n pairs of adjacent guests.
+The overall awkwardness of the seating arrangement is then defined as the maximum awkwardness of any pair of adjacent guests. Determine the minimum possible overall awkwardness of any seating arrangement.
+Signature
+int minOverallAwkwardness(int[] arr)
+
+
+-> Sort the Array in ascending order
+-> Visualize that we need to arrange this data as a normal distribution (max comes in middle, mins goes in the edges) like
+
+ A[0], A[2], A[4], ....A[n-2], A[n], A[n-1],......A[5], A[3], A[1]
+ As this is a circle A[0] and A[1] are adjacent, and make note that A[n] and A[n-1] are adjacent
+-> Calculate difference between every other item
+
+ diff = A[i] - A[i -2]
+-> special case diffs
+
+ A[1]-A[0]
+ A[n]-A[n-1]
+-> return max of diffs
+
+
+
+int minOverallAwkwardness(vector<int> &arr) {
+
+    sort(begin(arr),end(arr))
+    
+    // Arrange the sorted arr in this way:
+    // 0,2,4,...N-1,...,5,3,1
+    
+    // Adjacent ones are:
+    // i and i - 2 
+    // 0, 1
+    // N - 1, N - 2
+    
+    int mx = arr[1] - arr[0];
+    for (int i = 2; i < arr.size(); ++i) {
+    	mx = max(mx, abs(arr[i] - arr[i-2]));
+    }
+    // Note: We do not need to take into account diff of arr[N - 1] and arr[N - 2] as it can not be greater than diff of arr[N - 1] and arr[N - 3].
+    // max = Math.max(max, Math.abs(arr[arr.length - 1] - arr[arr.length - 2]));
+    return mx;
+  }
+
+
+Minimizing Permutations
+In this problem, you are given an integer N, and a permutation, P of the integers from 1 to N, denoted as (a_1, a_2, ..., a_N). You want to rearrange the elements of the permutation into increasing order, repeatedly making the following operation:
+Select a sub-portion of the permutation, (a_i, ..., a_j), and reverse its order.
+Your goal is to compute the minimum number of such operations required to return the permutation to increasing order.
+
+int minOperations(const vector <int> &arr) {
+    string str;
+    for (int x : arr) str.push_back(x + '0');
+
+    unordered_set<string> visited; visited.insert(str);
+    queue<string> q; q.push(std::move(str));
+
+    for (int step = 0; !q.empty(); ++step) {
+        for (size_t s = q.size(); s; --s) {
+            auto str = std::move(q.front()); q.pop();
+            if (std::is_sorted(str.begin(), str.end())) return step;
+
+            for (int i = 0; i < str.size(); ++i) {
+                for (int j = i + 2; j <= str.size(); ++j) {
+                    reverse(str.begin() + i, str.begin() + j);
+                    if (visited.insert(str).second) q.push(str);
+                    reverse(str.begin() + i, str.begin() + j);
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+
+
+1539. Kth Missing Positive Number
 
  Given an array arr of positive integers sorted in a strictly increasing order, and an integer k.
 
