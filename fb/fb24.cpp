@@ -1,3 +1,42 @@
+ 1539. Kth Missing Positive Number
+
+ Given an array arr of positive integers sorted in a strictly increasing order, and an integer k.
+
+ Find the kth positive integer that is missing from this array.
+
+
+ Example 1:
+
+ Input: arr = [2,3,4,7,11], k = 5
+ Output: 9
+ Explanation: The missing positive integers are [1,5,6,8,9,10,12,13,...]. The 5th missing positive integer is 9.
+
+
+
+class Solution {
+ public:
+  int findKthPositive(vector<int>& arr, int k) {
+    int l = 0;
+    int r = arr.size();
+
+    // Find the first index l s.t. nMissing(l) = A[l] - l - 1 >= k
+    while (l < r) {
+      const int m = (l + r) / 2;
+      if (arr[m] - m - 1 >= k)
+        r = m;
+      else
+        l = m + 1;
+    }
+
+    // The k-th missing positive
+    // = A[l - 1] + k - nMissing(l - 1)
+    // = A[l - 1] + k - (A[l - 1] - (l - 1) - 1)
+    // = A[l - 1] + k - (A[l - 1] - l)
+    // = l + k
+    return l + k;
+  }
+};
+
 Given an array of integers preorder, which represents the preorder traversal of a 
 BST (i.e., binary search tree), construct the tree and return its root.
 
