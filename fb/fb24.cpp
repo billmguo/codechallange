@@ -1,3 +1,62 @@
+/*Queue Removals
+You're given a list of n integers arr, which represent elements in a queue (in order from front to back). You're also given an integer x, and must perform x iterations of the following 3-step process:
+Pop x elements from the front of queue (or, if it contains fewer than x elements, pop all of them)
+Of the elements that were popped, find the one with the largest value (if there are multiple such elements, take the one which had been popped the earliest), and remove it
+For each one of the remaining elements that were popped (in the order they had been popped), decrement its value by 1 if it's positive (otherwise, if its value is 0, then it's left unchanged), and then add it back to the queue
+Compute a list of x integers output, the ith of which is the 1-based index in the original array of the element which had been removed in step 2 during the ith iteration.
+Signature
+int[] findPositions(int[] arr, int x)
+Input
+x is in the range [1, 316].
+n is in the range [x, x*x].
+Each value arr[i] is in the range [1, x].
+
+*/
+
+vector <int> findPositions(vector <int> arr, int x) {
+  
+  // put all elemens in a queue with their original indexes
+  queue<pair<int,int>> q, qt;
+  for (int i = 0; i< arr.size(); i++) {
+    q.push(make_pair(arr[i], i + 1)); // Note that index must be 1-based index
+  }
+  
+  vector<int> output;
+  
+  for (int i = 0; i < x; i++) {
+    
+    // 1) Extract X elements from the queue and place them in a temporary queue. 
+    //Find the maximum while doing so
+
+    pair<int, int> mx{-1,0};
+
+    for (int j = 0; j < x && !q.empty(); j++) {
+      auto val = q.front();
+      if (val.first > mx.first) {
+        mx = val;
+      }
+      qt.push(val);
+      q.pop();
+    }
+    
+    // 4) Put the index on the output array
+    output.push_back(mx.second);
+    
+    // 3) For each of the elements (except for the max) reduce the value until it reachs 0
+    while(!qt.empty()) {
+      auto val = qt.front();
+      qt.pop();
+      if (val == mx) {// 2) We do not include the max item anymore in the queue
+      	if (val.first > 0)
+      		val.first--;
+         q.push(val);
+      }
+    }
+  }
+  
+  return output;
+}
+
 Element Swapping
 Given a sequence of n integers arr, determine the lexicographically smallest sequence which may be obtained from it after performing at most k element swaps, each involving a pair of consecutive elements in the sequence.
 Note: A list x is lexicographically smaller than a different equal-length list y if and only if, for the earliest index at which the two lists differ, x's element at that index is smaller than y's element at that index.
