@@ -1,3 +1,63 @@
+Contiguous Subarrays
+You are given an array arr of N integers. For each index i, you are required to determine the number of contiguous subarrays that fulfills the following conditions:
+The value at index i must be the maximum element in the contiguous subarrays, and
+These contiguous subarrays must either start from or end on index i.
+Signature
+int[] countSubarrays(int[] arr)
+Input
+Array arr is a non-empty list of unique integers that range between 1 to 1,000,000,000
+Size N is between 1 and 1,000,000
+Output
+An array where each index i contains an integer denoting the maximum number of contiguous subarrays of arr[i]
+Example:
+arr = [3, 4, 1, 6, 2]
+output = [1, 3, 1, 5, 1]
+Explanation:
+For index 0 - [3] is the only contiguous subarray that starts (or ends) with 3, and the maximum value in this subarray is 3.
+For index 1 - [4], [3, 4], [4, 1]
+For index 2 - [1]
+For index 3 - [6], [6, 2], [1, 6], [4, 1, 6], [3, 4, 1, 6]
+For index 4 - [2]
+
+
+Maintain a stack such that it always contains the index for the last maximum encountered.
+If the next element is greater than the arr[stack.peek()] then pop the top of the stack till
+ we find a equal or greater element.
+* If stack is empty then it means that the current element is the maximum of all
+ and hence there are (current index + 1) possible arrays meeting the criteria.
+* If stack is not empty, then (current index - stack top) will be possible arrays for the index position
+Repeat the same steps from end of the array to get the final solution.
+
+vector<int> findCountOfContiguousSubArrayOptimized(vector<int> &arr) {
+        int n = arr.size();
+        stack<int> st;
+        vector<int> res;
+        res[0] = 1;
+        st.push(0);
+        for (int i = 1; i < arr.size(); i++) {
+          while(!st.empty() && arr[st.stop()] < arr[i]){
+            st.pop();
+            if (st.empty())
+              res[i] = i + 1;
+            else 
+              res[i] = i - st.top();
+          }
+          st.push(i);
+        }
+        st.clear();
+        st.push(n - 1);
+        for (int i = n - 2; i >= 0; --i) {
+          while (!st.empty() && arr[st.top()] < arr[i]) {
+            st.pop();
+            if (st.empty())
+              res[i] += (n - i - 1);
+            else
+              res[i] += st.top() - i - 1;
+          }
+          st.push(i);
+        }
+        return res;
+    }
 Passing Yearbooks
 There are n students, numbered from 1 to n, each with their own yearbook. They would like to
 pass their yearbooks around and get them signed by other students.
