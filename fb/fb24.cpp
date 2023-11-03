@@ -1,3 +1,43 @@
+
+Minimum Length Substrings
+You are given two strings s and t. You can select any substring of string s and rearrange the characters of the selected substring. Determine the minimum length of the substring of s such that string t is a substring of the selected substring.
+Signature
+int minLengthSubstring(String s, String t)
+Input
+s and t are non-empty strings that contain less than 1,000,000 characters each
+Output
+Return the minimum length of the substring of s. If it is not possible, return -1
+Example
+s = "dcbefebce"
+t = "fd"
+output = 5
+
+Explanation:
+Substring "dcbef" can be rearranged to "cfdeb", "cefdb", and so on. String t is a substring of "cfdeb". Thus, the minimum length required is 5.
+
+
+class Solution {
+public:
+    string minWindow(string s, string t) {
+        string res = "";
+        unordered_map<char, int> letterCnt;
+        int left = 0, cnt = 0, minLen = INT_MAX;
+        for (char c : t) ++letterCnt[c];
+        for (int i = 0; i < s.size(); ++i) {
+            if (--letterCnt[s[i]] >= 0) ++cnt;
+            while (cnt == t.size()) {
+                if (minLen > i - left + 1) {
+                    minLen = i - left + 1;
+                    res = s.substr(left, minLen);
+                }
+                if (++letterCnt[s[left]] > 0) --cnt;
+                ++left;
+            }
+        }
+        return minlen;
+    }
+};
+
 Contiguous Subarrays
 You are given an array arr of N integers. For each index i, you are required to determine the number of contiguous subarrays that fulfills the following conditions:
 The value at index i must be the maximum element in the contiguous subarrays, and
