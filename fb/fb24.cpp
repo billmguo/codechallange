@@ -1,3 +1,96 @@
+Element Swapping
+Given a sequence of n integers arr, determine the lexicographically smallest sequence which may be obtained from it after performing at most k element swaps, each involving a pair of consecutive elements in the sequence.
+Note: A list x is lexicographically smaller than a different equal-length list y if and only if, for the earliest index at which the two lists differ, x's element at that index is smaller than y's element at that index.
+
+Signature
+int[] findMinArray(int[] arr, int k)
+
+
+vector<int> findMinArray(vector<int> &arr, int k) {
+	for (int i = 0; i < arr.size() && k > 0: ++i) {
+		int index = findMinAtDistanceK(arr, i, k);
+		if (index == i)
+			continue;
+		reverse(arr.begin() + i, arr.begin() + index);
+		k -= index - i;
+	}
+	return arr;
+}
+
+int findMinAtDistanceK(vector<int> arr, int start, int k) {
+	int index = start, mn = INT_MAX;
+	for (int i = start; i <= start +k ; ++i) {
+		if (arr[i] < mn) {
+			mn = arr[i];
+			index = i;
+		}
+	}
+}
+
+/*
+Encrypted Words
+You've devised a simple encryption method for alphabetic strings that shuffles the characters in such a way that the resulting string is hard to quickly read, but is easy to convert back into the original string.
+When you encrypt a string S, you start with an initially-empty resulting string R and append characters to it as follows:
+
+Append the middle character of S (if S has even length, then we define the middle character as the left-most of the two central characters)
+Append the encrypted version of the substring of S that's to the left of the middle character (if non-empty)
+Append the encrypted version of the substring of S that's to the right of the middle character (if non-empty)
+For example, to encrypt the string "abc", we first take "b", and then append the encrypted version of "a" (which is just "a") and the encrypted version of "c" (which is just "c") to get "bac".
+If we encrypt "abcxcba" we'll get "xbacbca". That is, we take "x" and then append the encrypted version "abc" and then append the encrypted version of "cba".
+
+Input
+S contains only lower-case alphabetic characters
+1 <= |S| <= 10,000
+
+Output
+Return string R, the encrypted version of S.
+*/
+
+string encrypt(string s) {
+    if(s.size() <= 1)
+        return s;
+    int mid = (s.size() - 1) / 2;
+    string left = encrypt(s.substr(0, mid));
+    string right = encrypt(s.substr(mid + 1));
+    return s[mid] + left + right;
+}
+
+string findEncryptedWord(string s) {
+    return encrypt(s);
+}
+
+/*
+Change in a Foreign Currency
+You likely know that different currencies have coins and bills of different denominations. In some currencies, it's actually impossible to receive change for a given amount of money. For example, Canada has given up the 1-cent penny. If you're owed 94 cents in Canada, a shopkeeper will graciously supply you with 95 cents instead since there exists a 5-cent coin.
+Given a list of the available denominations, determine if it's possible to receive exact change for an amount of money targetMoney. Both the denominations and target amount will be given in generic units of that currency.
+Signature
+boolean canGetExactChange(int targetMoney, int[] denominations)
+Input
+1 ≤ |denominations| ≤ 100
+1 ≤ denominations[i] ≤ 10,000
+1 ≤ targetMoney ≤ 1,000,000
+
+
+Signature
+boolean canGetExactChange(int targetMoney, int[] denominations)
+Input
+1 ≤ |denominations| ≤ 100
+1 ≤ denominations[i] ≤ 10,000
+1 ≤ targetMoney ≤ 1,000,000
+*/
+
+
+bool canGetExactChange(int target, vector<int> dims){
+	if (target < 0)
+		return falsel
+	if (target == 0)
+		return true;
+	for (int i = 0; i < dims.size(): ++i) {
+		if (canGetExactChange(target -dims[i], dims))
+			return true;
+	}
+	return false;
+}
 /*Balanced Split
 Given an array of integers (which may include repeated integers), determine if there's a way to split the array into two subsequences A and B such that the sum of the integers in both arrays is the same, and all of the integers in A are strictly smaller than all of the integers in B.
 Note: Strictly smaller denotes that every integer in A must be less than, and not equal to, every integer in B.
