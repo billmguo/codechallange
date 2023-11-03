@@ -1,4 +1,56 @@
 
+/*Nodes in a Subtree
+You are given a tree that contains N nodes, each containing an
+integer u which corresponds to a lowercase character c in the string
+s using 1-based indexing. You are required to answer Q queries of
+type [u, c], where u is an integer and c is a lowercase letter. The
+query result is the number of nodes in the subtree of node u
+containing c.
+
+Signature:
+int[] countOfNodes(Node root, ArrayList<Query> queries, String s)
+
+Input
+A pointer to the root node, an array list containing Q queries of
+type [u, c], and a string s
+
+Constraints
+N and Q are the integers between 1 and 1,000,000 u is an integer
+between 1 and N s is of the length of N, containing only lowercase
+letters c is a lowercase letter contained in string s Node 1 is the
+root of the tree
+
+Output
+An integer array containing the response to each query
+
+*/
+ void countOfNodesChar(Node* root, map<int, vector<int>> m, string s){
+ 
+    int count[26];
+    
+    for (auto child : root.children) {
+      countOfNodesChar(child, m, s);
+      auto childCount = m[child.val];
+      for (int i = 0; i < 26; i++) {
+        count[i] += childCount[i];
+      }
+    }
+
+    count[s[root->val] - 'a'] ++;
+    m[root->val] = count;
+  }
+
+vector<int>  countOfNodes(Node root, vector<pair<char,int>> queries, string s) {
+
+    map<int, vector<int>> map;
+    vector<int> res;
+    countOfNodesChar(root, map, s);
+    for (auto q:queries) {
+      res.push_back[q.first][q.second - 'a'];
+    }
+    return res;
+}
+
 Minimum Length Substrings
 You are given two strings s and t. You can select any substring of string s and rearrange the characters of the selected substring. Determine the minimum length of the substring of s such that string t is a substring of the selected substring.
 Signature
