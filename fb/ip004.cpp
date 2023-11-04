@@ -218,22 +218,29 @@ Note: The length of path between two nodes is represented by the number of edges
 
 Example 1:
 
+
 class Solution {
-public:
-    int longestUnivaluePath(TreeNode* root) {
-        int res = 0;
-        helper(root, res);
-        return res;
-    }
-    int helper(TreeNode* node, int& res) {
-        if (!node) return 0;
-        int left = helper(node->left, res);
-        int right = helper(node->right, res);
-        left = (node->left && node->val == node->left->val):left + 1:0;
-        right = (node->right && node->val == node->right->val) ? right + 1 : 0;
-        res = max(res, left + right);
-        return max(left, right);
-    }
+ public:
+  int longestUnivaluePath(TreeNode* root) {
+    int ans = 0;
+    longestUnivaluePathDownFrom(root, ans);
+    return ans;
+  }
+
+ private:
+  int longestUnivaluePathDownFrom(TreeNode* root, int& ans) {
+    if (root == nullptr)
+      return 0;
+
+    const int l = longestUnivaluePathDownFrom(root->left, ans);
+    const int r = longestUnivaluePathDownFrom(root->right, ans);
+    const int arrowLeft =
+        root->left && root->left->val == root->val ? l + 1 : 0;
+    const int arrowRight =
+        root->right && root->right->val == root->val ? r + 1 : 0;
+    ans = max(ans, arrowLeft + arrowRight);
+    return max(arrowLeft, arrowRight);
+  }
 };
 
 Given a binary tree, write a function to get the maximum width of the given tree. The width of a tree is the maximum width among all levels. The binary tree has the same structure as a full binary tree, but some nodes are null.
