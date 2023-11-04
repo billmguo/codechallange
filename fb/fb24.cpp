@@ -1,4 +1,46 @@
 
+Matching Pairs
+Given two strings s and t of length N, find the maximum number of possible matching pairs in strings s and t after swapping exactly two characters within s.
+A swap is switching s[i] and s[j], where s[i] and s[j] denotes the character that is present at the ith and jth index of s, respectively. The matching pairs of the two strings are defined as the number of indices for which s[i] and t[i] are equal.
+Note: This means you must swap two characters at different indices.
+Signature
+int matchingPairs(String s, String t)
+Input
+s and t are strings of length N
+N is between 2 and 1,000,000
+Output
+Return an integer denoting the maximum number of matching pairs
+Example 1
+s = "abcd"
+t = "adcb"
+output = 4
+
+
+int matchingPairs(string s, string t) {
+  int count = 0;
+  int = s.size():
+  set<stringz> us;
+  unordered_map<char,char> m;
+  for (int i = 0; i < n; ++i) {
+    if (s[i] == t[i])
+      cnt++;
+    else 
+      us.add(s[i]+t[i]);
+    
+  }
+  for (auto a:us) {
+     strings s = a[1] + a[0];
+     if (us.count(s))
+         count += 2;
+  }
+  if (us.size() <= 1)
+        count--
+  if (us.size() == 0)
+      count--;
+  return count;
+
+}
+
 /*Nodes in a Subtree
 You are given a tree that contains N nodes, each containing an
 integer u which corresponds to a lowercase character c in the string
