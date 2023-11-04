@@ -1,4 +1,42 @@
 
+Median is the middle value in an ordered integer list. If the size of the list is even, there is no middle value. So the median is the mean of the two middle value.
+
+Examples:
+
+[2,3,4] , the median is 3
+
+[2,3], the median is (2 + 3) / 2 = 2.5
+
+class MedianFinder {
+ public:
+  void addNum(int num) {
+    if (maxHeap.empty() || num <= maxHeap.top()) {
+      maxHeap.push(num);
+    }else
+      minheap.push(num);
+
+    if (maxheap.size() < minHeap.size()) {
+        maxheap.push(minheap.top());
+        minheap.pop();
+    } else if (maxHeap.size() - minheap.size() > 1) {
+        minHeap.push_back(maxheap.top());
+        maxheap.pop();
+    }
+
+  }
+
+  double findMedian() {
+      if (maheap.size() == minheap.size())
+        return maxHeap.top() + minHeap.top()/2.0;
+      else
+        return maxHeap.top();
+  }
+
+ private:
+      priority_queue<int> maxHeap;
+      priority_queue<int, vector<int>, greater<>> minHeap;
+};
+
 Matching Pairs
 Given two strings s and t of length N, find the maximum number of possible matching pairs in strings s and t after swapping exactly two characters within s.
 A swap is switching s[i] and s[j], where s[i] and s[j] denotes the character that is present at the ith and jth index of s, respectively. The matching pairs of the two strings are defined as the number of indices for which s[i] and t[i] are equal.
