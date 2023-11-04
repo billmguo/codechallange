@@ -22,24 +22,25 @@ BinaryMatrix.dimensions() returns a list of 2 elements [rows, cols], which means
  */
 
 class Solution {
-    public int leftMostColumnWithOne(BinaryMatrix binaryMatrix) {
-        List<Integer> dimension = binaryMatrix.dimensions();
-        int n = dimension.get(0);
-        int m = dimension.get(1);
-        int i = n - 1, j = m - 1, res = -1;
-        while (i >= 0 && j >= 0) {
-            int cur = binaryMatrix.get(i, j);
-            if (cur == 0) {
-                i--;
-            } else {
-                res = j;
-                j--;
-            }
-        }
-        return res;
-    }
+ public:
+  int leftMostColumnWithOne(BinaryMatrix& binaryMatrix) {
+    const vector<int> dimensions = binaryMatrix.dimensions();
+    const int m = dimensions[0];
+    const int n = dimensions[1];
+    int ans = -1;
+    int i = 0;
+    int j = n - 1;
 
-}
+    while (i < m && j >= 0)
+      if (binaryMatrix.get(i, j) == 1)
+        ans = j--;
+      else
+        ++i;
+
+    return ans;
+  }
+};
+
 
 bool helper(BinaryMatrix &bm, int r, int c) {
     for (int r = 0; r < m; r++) {
@@ -73,23 +74,20 @@ int leftMostColumnWithOne(BinaryMatrix& bm){
 
 
 Maximum Difference Between Node and Ancestor
+
 class Solution {
-    int maxDiff = 0;
 public:
-    void dfs(TreeNode* node, int mx, int mn) {
-        if(!node) return;
-        max_d = max(max_d, abs(mx - node->val), abs(mn - node->val));
-        mn = min(root->val, mn);
-        mx = max(root->val, mx);
-        dfs(node->left, mx, mn);
-        dfs(node->right, mx, mn);
-    }
-    
     int maxAncestorDiff(TreeNode* root) {
-        dfs(root, root->val, root->val);
-        return maxDiff;
+        return helper(root, root->val, root->val);
+    }
+    int helper(TreeNode* node, int mn, int mx) {
+        if (!node) return mx - mn;
+        mn = min(mn, node->val);
+        mx = max(mx, node->val);
+        return max(helper(node->left, mn, mx), helper(node->right, mn, mx));
     }
 };
+
 
 two city scheudle 
 class Solution {
