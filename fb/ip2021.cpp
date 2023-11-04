@@ -231,6 +231,27 @@ Explanation: The shortest subarray we can remove is [10,4,2] of length 3.
 The remaining elements after that will be [1,2,3,3,5] which are sorted.
 Another correct solution is to remove the subarray [3,10,4].
 
+int findLengthOfShortestSubarray(vector<int>& arr) {
+	int n = arr.size(), left = 0, right = n - 1;
+	while (l < n && arr[left] <= arr[left + 1] ++left;
+	if (left == n - 1)
+		return 0;
+	while (right > left && arr[right - 1} <= arr[right])
+		right--;
+	int ans = min(n - left - 1, right);
+	int l = 0, r = right;
+	while ( l <= left && r < n) {
+		if (arr[r] >= arr[l])
+		{
+		     ans = min(ans, r - l - 1);
+		     ++l;
+		} else
+		     ++r;
+			
+	}
+        return ans;
+    }
+	
 class Solution {
  public:
   int findLengthOfShortestSubarray(vector<int>& arr) {
@@ -254,11 +275,12 @@ class Solution {
     int i = l;
     int j = n - 1;
     while (i >= 0 && j >= r && j > i) {
-      if (arr[i] <= arr[j])
+      if (arr[i] <= arr[j]){
         --j;
+	ans = min(ans, j - i);
+      }
       else
         --i;
-      ans = min(ans, j - i);
     }
 
     return ans;
