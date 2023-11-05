@@ -71,6 +71,46 @@ class Solution {
   }
 };
 
+Given a string s, find the longest palindromic subsequence’s length in s. You may assume that the maximum length of s is 1000.
+class Solution {
+public:
+    int longestPalindromeSubseq(string s) {
+        int n = s.size();
+        vector<vector<int>> dp(n, vector<int>(n));
+        for (int i = n - 1; i >= 0; --i) {
+            dp[i][i] = 1;
+            for (int j = i + 1; j < n; ++j) {
+                if (s[i] == s[j]) {
+                    dp[i][j] = dp[i + 1][j - 1] + 2;
+                } else {
+                    dp[i][j] = max(dp[i + 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+        return dp[0][n - 1];
+    }
+};
+Given a string s, return the longest palindromic substring in s. //not subsequence
+ 
+class Solution {
+public:
+    string longestPalindrome(string s) {
+        if (s.empty()) return "";
+        int n = s.size(), left = 0, len = 1;
+        vector<vector<bool>> dp(n, vector<bool>(n));     
+        for (int i = 0; i < n; ++i) {
+            dp[i][i] = true;
+            for (int j = 0; j < i; ++j) {
+                dp[j][i] = (s[i] == s[j] && (i - j < 2 || dp[j + 1][i - 1]));
+                if (dp[j][i] && len < i - j + 1) {
+                    len = i - j + 1;
+                    left = j;
+                }
+            }
+        }
+        return s.substr(left, len);
+    }
+};
 You have a pointer at index 0 in an array of size arrLen. At each step, you can move 1 position to the left, 1 position to the right in the array or stay in the same place  (The pointer should not be placed outside the array at any time).
 
 Given two integers steps and arrLen, return the number of ways such that your pointer still at index 0 after exactly steps steps.
