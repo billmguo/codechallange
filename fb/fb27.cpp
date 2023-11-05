@@ -649,3 +649,55 @@ public:
         return res;
     }
 };
+
+
+1464. Maximum Product of Two Elements in an Array 
+
+class Solution {
+public:
+    int maxProduct(vector<int>& nums) {
+        int a = 0, b = 0;
+        for (int n : nums) {
+            if (n >= a) {
+                b = a;
+                a = n;
+            } else if (n > b) b = n;
+        }
+        return (a - 1) * (b - 1);
+    }
+};
+
+1029. Two City Scheduling
+
+A company is planning to interview 2n people. Given the array costs where costs[i] = [aCosti, bCosti], the cost of flying the ith person to city a is aCosti, and the cost of flying the ith person to city b is bCosti.
+
+Return  the minimum cost to fly every person to a city  such that exactly n people arrive in each city.
+
+A company is planning to interview 2n people. Given the array costs where costs[i] = [aCosti, bCosti], the cost of flying the ith person to city a is aCosti, and the cost of flying the ith person to city b is bCosti.
+
+
+
+
+
+class Solution {
+ public:
+  int twoCitySchedCost(vector<vector<int>>& costs) {
+    const int n = costs.size() / 2;
+    int ans = 0;
+
+    // How much money can we save if we fly a person to A instead of B?
+    // To save money, we should
+    //   1) fly the person with the max saving to A
+    //   2) fly the person with the min saving to B
+    ranges::sort(costs, [](const auto& a, const auto& b) {
+      // Sort in descending order by the money saved if we fly a person to A
+      // instead of B.
+      return a[1] - a[0] > b[1] - b[0];
+    });
+
+    for (int i = 0; i < n; ++i)
+      ans += costs[i][0] + costs[i + n][1];
+
+    return ans;
+  }
+};
