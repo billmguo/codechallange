@@ -79,3 +79,21 @@ int computeare(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4) {
     else
         return sum1 + sum2;
 }
+1299. Replace Elements with Greatest Element on Right Side
+
+Given an array arr, replace every element in that array with the greatest element among
+the elements to its right, and replace the last element with -1.
+
+After doing so, return the array.
+class Solution {
+public:
+    vector<int> replaceElements(vector<int>& arr) {
+        int n = arr.size(), curMax = INT_MIN;
+        vector<int> res(n, -1);
+        for (int i = n - 2; i >= 0; --i) {
+            curMax = max(curMax, arr[i + 1]);
+            res[i] = curMax;
+        }
+        return res;
+    }
+};
