@@ -97,3 +97,23 @@ public:
         return res;
     }
 };
+
+1275. Find Winner on a Tic Tac Toe Game
+
+class Solution {
+public:
+    string tictactoe(vector<vector<int>>& moves) {
+        int diag = 0, rev_diag = 0;
+        vector<int> row(3), col(3);
+        for (int i = 0; i < moves.size(); ++i) {
+            int r = moves[i][0], c = moves[i][1];
+            int val = i % 2 == 0 ? 1 : -1;
+            if (r == c) diag += val;
+            if (r + c == 2) rev_diag += val;
+            row[r] += val;
+            col[c] += val;
+            if (abs(diag) == 3 || abs(rev_diag) == 3 || abs(row[r]) == 3 || abs(col[c]) == 3) return val == 1 ? "A" : "B";
+        }
+        return moves.size() == 9 ? "Draw" : "Pending";
+    }
+};
