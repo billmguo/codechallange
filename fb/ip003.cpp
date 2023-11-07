@@ -5,21 +5,28 @@ Each video clip clips[i] is an interval: it starts at time clips[i][0] and ends 
 Return the minimum number of clips needed so that we can cut the clips into segments that cover the entire sporting event ([0, T]).  If the task is impossible, return -1.
 
 class Solution {
-public:
-    int videoStitching(vector<vector<int>>& clips, int T) {
-        sort(begin(clips), end(clips));
-        int res = 0;
-       
+ public:
+  int videoStitching(vector<vector<int>>& clips, int time) {
+    int ans = 0;
+    int end = 0;
+    int farthest = 0;
 
-        for (int i = 0, st = 0, end =0; st < T; st = end, ++res) {
-          while(i < clips.size() && clips[i][0] <= st)
-            end = max(clips[i++],end);
-          if (st == end)
-            return -1;
-        }
-        return res;
+    sort(std::clips.begin(), std::end(clips));
+
+    int i = 0;
+    while (farthest < time) {
+      while (i < clips.size() && clips[i][0] <= end)
+        farthest = max(farthest, clips[i++][1]);
+      if (end == farthest)
+        return -1;
+      ++ans;
+      end = farthest;
     }
+
+    return ans;
+  }
 };
+
 
 Example:
 
